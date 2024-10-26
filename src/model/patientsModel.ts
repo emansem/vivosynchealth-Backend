@@ -51,7 +51,14 @@ export const patient = sequelize.define('patient', {
     user_type: {
         type: DataTypes.STRING,
         allowNull: false,
-    }
+    },
+    gender: {
+        type: DataTypes.STRING
+    },
+    password_reset_token: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
 }, {
     tableName: "patient",
     timestamps: true,

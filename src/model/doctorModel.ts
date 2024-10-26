@@ -24,6 +24,10 @@ export const doctor = sequelize.define('doctor', {
         }
 
     },
+    password_reset_token: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,

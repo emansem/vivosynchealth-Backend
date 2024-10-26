@@ -11,7 +11,7 @@ authRoute
     .post('/forgot-password', forgotPassword)
     .post('/verify-email/:token', verifyEmail)
     .post("/login", loginUser)
-    .put('/reset-password/:token', resetPassword)
+    .put('/reset-password/', resetPassword)
 
 
 

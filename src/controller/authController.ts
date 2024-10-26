@@ -167,9 +167,10 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
             throw new AppError("Invalid email adress or user not found", 400)
         }
         const token = generateEmailToken()
+        await savePasswordResetToken(token, findUser.dataValues.id, findUser.dataValues.user_type, next)
         const resetLink = `http://localhost:5740/verify-email?token=${token}`
         await sendResentPasswordEmail(findUser.dataValues.first_name, findUser.dataValues.email, resetLink);
-        await savePasswordResetToken(token, findUser.dataValues.id, findUser.dataValues.user_type)
+
         res.status(200).json({
             status: "success",
             message: "A password reset link has been sent to your email"
@@ -183,12 +184,18 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 }
 
 //insert the user password reset token in to the database 
-const savePasswordResetToken = async (token: string, id: number, user_type: string) => {
+const savePasswordResetToken = async (token: string, id: number, user_type: string, next: NextFunction) => {
     try {
         const userMatch = user_type === "patient" ? patient : doctor;
-        await userMatch.update({ password_reset_token: token, token_expires_in: Date.now() + 20 * 60 * 1000 }, { where: { id: id } });
-    } catch (error) {
+        await userMatch.update(
+            {
+                password_reset_token: token,
+                token_expires_in: Date.now() + 20 * 60 * 1000
+            },
+            { where: { id: id } })
 
+    } catch (error) {
+        next(error)
     }
 }
 //Reset password controller
@@ -212,8 +219,22 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         } else if (password !== confirmPassword) {
             throw new AppError("Password do not match", 400);
         }
-
+        const typeOfUser = findUser.dataValues.user_type === "patient" ? patient : doctor;
+        const user_id = findUser.dataValues.id;
+        await typeOfUser.update(
+            {
+                password: await hashPassword(password),
+                password_reset_token: null,
+                token_expires_in: null
+            },
+            { where: { id: user_id } })
+        //send back a response here
+        res.status(200).json({
+            status: "success",
+            message: "Password has been reseted successfully, please login now",
+            token: generateJwt(user_id)
+        })
     } catch (error) {
-
+        next(error)
     }
 }

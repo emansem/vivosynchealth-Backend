@@ -18,13 +18,25 @@
   },
   "homepage": "https://github.com/emansem/vivosynchealth#readme",
   "dependencies": {
+    "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "mysql2": "^3.11.3"
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.3",
+    "nodemailer": "^6.9.15",
+    "pug": "^3.0.3",
+    "pug-cli": "^1.0.0-alpha6",
+    "sequelize": "^6.37.4",
+    "tslib": "^2.8.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.9",
+    "@types/nodemailer": "^6.4.16",
+    "@types/pug": "^2.0.10",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"

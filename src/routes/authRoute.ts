@@ -1,7 +1,9 @@
 import express from "express"
-import { createAccount, forgotPassword, resetPassword } from "../controller/authController";
-import { loginUser } from "../controller/loginUserController";
-import { verifyEmail } from "../controller/verifyEmail";
+import { loginUser } from "../controller/authentication/login";
+import { verifyEmail } from "../controller/authentication/verifyEmail";
+import { createAccount } from "../controller/authentication/register";
+import { forgotPassword } from "../controller/authentication/forgotPassword";
+import { resetPassword } from "../controller/authentication/resetPassword";
 export const authRoute = express.Router();
 
 export const generalRoute = express.Router();
@@ -9,7 +11,7 @@ export const loginRoute = express.Router();
 authRoute
     .post('/register', createAccount)
     .post('/forgot-password', forgotPassword)
-    .post('/verify-email/:token', verifyEmail)
+    .get('/verify-email/', verifyEmail)
     .post("/login", loginUser)
     .put('/reset-password/', resetPassword)
 

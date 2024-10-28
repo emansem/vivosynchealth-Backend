@@ -18,8 +18,10 @@
   },
   "homepage": "https://github.com/emansem/vivosynchealth#readme",
   "dependencies": {
+    "@hachther/mesomb": "^1.1.1",
     "bcrypt": "^5.1.1",
     "crypto": "^1.0.1",
+    "detect-browser": "^5.3.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.21.1",

@@ -37,13 +37,14 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
         const updatedDetails: any = {};
         const { coupon_id, name, amount, plan_items, status } = req.body;
         const id = parseInt(req.params.id);
+        //To update the plan  records you have to check if  field to updated are prvided if not updated optional record
         if (!id || isNaN(id)) throw new AppError("Please provid a valid id", 400)
         if (coupon_id) updatedDetails.coupon_id = coupon_id;
         if (name) updatedDetails.name = name;
         if (amount) updatedDetails.amount = amount;
         if (plan_items) updatedDetails.plan_items = JSON.stringify(plan_items);
 
-        //update the plan details
+        //Update the plan details
         await plan.update(updatedDetails, { where: { id: id } },);
         //find the updated plan record in the database and send to the client
         const updatedPlanRecord = await plan.findOne({ where: { id: id } });

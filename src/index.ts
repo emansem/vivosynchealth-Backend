@@ -5,7 +5,8 @@ import { connection } from './config/database/mysql';
 import { appErrorHandeler } from './middleware/errorHandeller';
 import { generalRoute, loginRoute } from './routes/authRoute';
 import { authRoute } from './routes/authRoute';
-import { doctorRoute } from './routes/userRoute';
+import { doctorRoute, patientRoute } from './routes/userRoute';
+import { paymentRoute } from './routes/paymentRoute';
 dotenv.config()
 
 const app = express();
@@ -18,6 +19,8 @@ app.use(generalRoute);
 app.use('/api/auth', authRoute)
 app.use('/api', loginRoute);
 app.use('/api/doctors', doctorRoute);
+app.use('/api/patients', patientRoute);
+app.use('/api/payment', paymentRoute)
 app.use(appErrorHandeler);
 
 app.get('/', (req: Request, res: Response) => {
@@ -37,3 +40,4 @@ connection.connect((err) => {
     else
         console.log('Connection to the database was successful');
 })
+

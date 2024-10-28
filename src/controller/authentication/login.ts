@@ -5,11 +5,14 @@ import { generateJwt } from "../../utils/jwt";
 import findUser from "../../helper/findUser";
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body
+
+
     try {
+        const { email, password } = req.body
         if (!email || !password) throw new AppError("All fields are required", 400)
         //Find the user in the database by email
         const user = await findUser(email, "email", next, "Invalid email adress or user not found", 400) as any
+        console.log(user);
 
         if (! await comparePassword(password, user?.dataValues.password)) {
             throw new AppError('Invalid email or password ', 404);

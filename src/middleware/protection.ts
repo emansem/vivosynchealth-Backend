@@ -2,12 +2,16 @@ import { Response, Request, NextFunction } from "express";
 import { AppError } from "./errors";
 import { verifyTOken } from "../utils/jwt";
 import findUser from "../helper/findUser";
+import { getUserCurrentLocation } from "../services/getUserLocation";
+import { detect } from "detect-browser"
+
 
 export const protectedRoutes = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
 
         const { authorization } = req.headers;
+        console.log("User current browser", detect()?.name);
         if (!authorization) throw new AppError("Please login to access this page", 401)
         const token = authorization?.replace("Bearer", "").trim();
 
@@ -20,6 +24,7 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         if (exp < Date.now() / 1000) throw new AppError("Session has expired, please login", 401);
         //check if the user exit in the database
         const user = await findUser(id, "id", next, "User not found please create an account", 404);
+
         (req as any).user = user?.dataValues.id
         next()
     } catch (error) {

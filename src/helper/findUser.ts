@@ -11,9 +11,9 @@ const findUser = async (searchValue: string | number, searchKey: string, next: N
         if (!searchValue) {
             throw new AppError(errorMessage, errorCode)
         }
-        let findUserData = await patient.findOne({ where: { [searchKey]: searchValue }, attributes: { exclude: ['password', "password_reset_token", "email_verify_token", "token_expires_in"] } });
+        let findUserData = await patient.findOne({ where: { [searchKey]: searchValue }, attributes: { exclude: ["password_reset_token", "email_verify_token", "token_expires_in"] } });
         if (!findUserData) {
-            findUserData = await doctor.findOne({ where: { [searchKey]: searchValue }, attributes: { exclude: ['password', "password_reset_token", "email_verify_token", "token_expires_in"] } });
+            findUserData = await doctor.findOne({ where: { [searchKey]: searchValue }, attributes: { exclude: ["password_reset_token", "email_verify_token", "token_expires_in"] } });
         }
         if (findUserData === null) {
             throw new AppError(`${errorMessage}`, errorCode)

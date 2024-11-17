@@ -45,7 +45,7 @@ export const doctor = sequelize.define('doctor', {
     email_verify_token: {
         type: DataTypes.STRING
     },
-    doctor_id: {
+    user_id: {
         type: DataTypes.STRING,
         defaultValue: "hello"
     },
@@ -55,6 +55,15 @@ export const doctor = sequelize.define('doctor', {
     user_type: {
         type: DataTypes.STRING,
         allowNull: false,
+    },
+    last_login: {
+        type: DataTypes.BIGINT
+    },
+    password_updated_at: {
+        type: DataTypes.BIGINT
+    },
+    last_login_ip: {
+        type: DataTypes.STRING
     }
 }, {
     tableName: "doctor",

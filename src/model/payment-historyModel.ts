@@ -15,7 +15,7 @@ export const paymentHistory = sequelize.define("payment_history", {
         allowNull: false,
     },
     payment_id: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
 
     },

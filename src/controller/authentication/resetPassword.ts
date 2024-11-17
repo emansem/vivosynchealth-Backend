@@ -1,46 +1,48 @@
 import { NextFunction, Request, Response } from 'express';
 import { hashPassword } from '../../utils/password';
-import { generateJwt } from '../../utils/jwt';
+import { generateJwt, verifyTOken } from '../../utils/jwt';
 import { AppError } from '../../middleware/errors';
 import { patient } from '../../model/patientsModel';
 import { doctor } from '../../model/doctorModel';
+import findUser from '../../helper/findUser';
 
 
 //Reset password controller
 export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        let findUser;
-        const token = req.query.token;
+
+        const token = req.query.token as string;
         const { password, confirmPassword } = req.body;
         if (!token) {
             throw new AppError('Invalid token or token has expired', 400);
         }
-        findUser = await patient.findOne({ where: { password_reset_token: token } });
-        if (!findUser) {
-            findUser = await doctor.findOne({ where: { password_reset_token: token } });
-        }
-        if (!findUser) {
-            throw new AppError('Invalid token or token has expired', 400);
-        }
+        const user = await findUser(token, "password_reset_token", next, "Invalid token or token has expired", 400)
         if (!password || !confirmPassword) {
             throw new AppError("Please fill all the fields", 400);
         } else if (password !== confirmPassword) {
             throw new AppError("Password do not match", 400);
         }
-        const typeOfUser = findUser.dataValues.user_type === "patient" ? patient : doctor;
-        const user_id = findUser.dataValues.id;
+
+        const typeOfUser = user?.dataValues.user_type === "patient" ? patient : doctor;
+        const user_id = user?.dataValues.user_id;
+        const jwtToken = generateJwt(user?.dataValues.user_id);
+        const decordToken = verifyTOken(jwtToken);
+        const { iat } = decordToken as string | number | any;
+
         await typeOfUser.update(
             {
                 password: await hashPassword(password),
                 password_reset_token: null,
-                token_expires_in: null
+                token_expires_in: null,
+                password_updated_at: iat,
+
             },
-            { where: { id: user_id } })
+            { where: { user_id } })
         //send back a response here
         res.status(200).json({
             status: "success",
             message: "Password has been reseted successfully, please login now",
-            token: generateJwt(user_id)
+            token: jwtToken
         })
     } catch (error) {
         next(error)

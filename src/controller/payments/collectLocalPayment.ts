@@ -49,7 +49,8 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
 //Create the patient and doctor a subscription 
 const createSubscription = async (doctor_id: number, patient_id: number, plan_id: number, amount: number, next: NextFunction, payment_method: string) => {
     try {
-        const payId = generateEmailToken().slice(0, 20);
+        const payId = generateEmailToken().slice(0, 10);
+        console.log(payId);
         const saveSubscription = await subscription.create(
             {
                 patient_id,

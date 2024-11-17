@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.3",
     "nodemailer": "^6.9.15",
+    "openai": "^4.68.4",
     "pug": "^3.0.3",
     "pug-cli": "^1.0.0-alpha6",
     "sequelize": "^6.37.4",

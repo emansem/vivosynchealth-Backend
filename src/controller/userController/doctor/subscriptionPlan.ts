@@ -43,7 +43,8 @@ export const updatePlan = async (req: Request, res: Response, next: NextFunction
         if (name) updatedDetails.name = name;
         if (amount) updatedDetails.amount = amount;
         if (plan_items) updatedDetails.plan_items = JSON.stringify(plan_items);
-
+        const findPLan = await plan.findByPk(id);
+        if (!findPLan) throw new AppError("No plan found", 400);
         //Update the plan details
         await plan.update(updatedDetails, { where: { id: id } },);
         //find the updated plan record in the database and send to the client
@@ -81,8 +82,8 @@ export const getDoctorPlan = async (req: Request, res: Response, next: NextFunct
 
 export const getAllDoctorPlans = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = parseInt(req.params.doctor_id);
-        if (!id || isNaN(id)) throw new AppError("Please provid a valid id", 400);
+        const id = req.params.doctor_id
+        if (!id || id) throw new AppError("Please provid a valid id", 400);
 
         const planDetails = await plan.findAll({ where: { doctor_id: id } });
         res.status(200).json({

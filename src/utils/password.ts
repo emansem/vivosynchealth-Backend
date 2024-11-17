@@ -13,7 +13,7 @@ export const hashPassword = async (password: string) => {
 export const comparePassword = async (newPassword: string, oldPassword: string) => {
     try {
         return bcrypt.compare(newPassword, oldPassword)
-    } catch (error) {
-        console.log('Error hashing password', error);
+    } catch (error: any) {
+        throw new error
     }
 }

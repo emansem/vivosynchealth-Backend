@@ -7,6 +7,7 @@ import { generalRoute, loginRoute } from './routes/authRoute';
 import { authRoute } from './routes/authRoute';
 import { doctorRoute, patientRoute } from './routes/userRoute';
 import { paymentRoute } from './routes/paymentRoute';
+import { messageRoutes } from './routes/messages';
 dotenv.config()
 
 const app = express();
@@ -19,6 +20,7 @@ app.use(generalRoute);
 app.use('/api/auth', authRoute)
 app.use('/api', loginRoute);
 app.use('/api/doctors', doctorRoute);
+app.use("/api/message", messageRoutes);
 app.use('/api/patients', patientRoute);
 app.use('/api/payment', paymentRoute)
 app.use(appErrorHandeler);

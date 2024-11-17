@@ -3,29 +3,42 @@ import { AppError } from "./errors";
 import { verifyTOken } from "../utils/jwt";
 import findUser from "../helper/findUser";
 import { getUserCurrentLocation } from "../services/getUserLocation";
-import { detect } from "detect-browser"
+
 
 
 export const protectedRoutes = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
-
+        const userLocation = await getUserCurrentLocation();
+        // const userIp = userLocation.geoplugin_request
         const { authorization } = req.headers;
-        console.log("User current browser", detect()?.name);
+
         if (!authorization) throw new AppError("Please login to access this page", 401)
         const token = authorization?.replace("Bearer", "").trim();
 
         const decordToken = verifyTOken(token);
-        console.log('decord token', decordToken);
+
         if (!decordToken) throw new AppError('Please login to access this page', 401);
 
-        const { id, exp } = decordToken as string | number | any;
+        const { id, exp, iat } = decordToken as string | number | any;
         //check if the token has expired
+        console.log(iat);
         if (exp < Date.now() / 1000) throw new AppError("Session has expired, please login", 401);
         //check if the user exit in the database
-        const user = await findUser(id, "id", next, "User not found please create an account", 404);
+        const user = await findUser(id, "user_id", next, "User not found, please create an account", 404);
 
-        (req as any).user = user?.dataValues.id
+        if (!user) throw new AppError("User not found", 404)
+        if (!userLocation) throw new AppError("Error fetching user location", 400)
+        const userIp = userLocation?.geoplugin_request;
+
+
+        const lastChangePassword = user?.dataValues.password_updated_at;
+        //check the last time the user change his password, the last time the user login and check if the IP address has change
+        // console.log("pasword change date", lastChangePassword)
+        // if (lastChangePassword !== iat) {
+        //     throw new AppError("Please login to continue", 401);
+        // }
+        (req as any).user = user?.dataValues.user_id
         next()
     } catch (error) {
         next(error);

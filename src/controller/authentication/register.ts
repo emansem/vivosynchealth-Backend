@@ -7,6 +7,7 @@ import { sendVerificationEmail } from '../../emails/email';
 import { generateEmailToken } from '../../helper/emailToken';
 import { patient } from '../../model/patientsModel';
 import { doctor } from '../../model/doctorModel';
+import { generateDoctorId, generatePatientId } from '../../helper/generateUserId';
 
 
 //Create a new patient controller
@@ -83,7 +84,7 @@ const savePatientData = async (body: UserTypes, password: string, next: NextFunc
             gender,
             user_type: 'patient',
             token_expires_in: emailTokenEXpires,
-            patient_id: generateUserId(),
+            user_id: generatePatientId()
 
         })
 
@@ -111,7 +112,7 @@ const saveDoctorData = async (body: UserTypes, password: string, next: NextFunct
             gender: gender,
             user_type: 'doctor',
             token_expires_in: emailTokenEXpires,
-            doctor_id: generateUserId()
+            user_id: generateDoctorId()
 
         })
 

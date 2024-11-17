@@ -19,7 +19,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
         const token = generateEmailToken()
         //Save the password reset token
-        await savePasswordResetToken(token, user.dataValues.id, user.dataValues.user_type, next)
+        await savePasswordResetToken(token, user.dataValues.user_id, user.dataValues.user_type, next)
         const resetLink = `http://localhost:5740/verify-email?token=${token}`
         //send the user email link to verify his account
         await sendResentPasswordEmail(user.dataValues.first_name, user.dataValues.email, resetLink);
@@ -43,7 +43,7 @@ const savePasswordResetToken = async (token: string, id: number, user_type: stri
                 password_reset_token: token,
                 token_expires_in: Date.now() + 20 * 60 * 1000
             },
-            { where: { id: id } })
+            { where: { user_id: id } })
 
     } catch (error) {
         next(error)

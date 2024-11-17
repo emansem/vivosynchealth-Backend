@@ -4,14 +4,15 @@ import { patient } from "../../model/patientsModel";
 import { AppError } from "../../middleware/errors";
 import { doctor } from "../../model/doctorModel";
 import findUser from "../../helper/findUser";
+import { generateJwt } from "../../utils/jwt";
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.query.token as string;
     try {
         const userData = await findUserData(token, next)
-        console.log(userData);
+
         const user_type = userData?.dataValues.user_type
-        const id = userData?.dataValues.id;
+        const id = userData?.dataValues.user_id;
         await updateUserData(id, user_type, res, next);
     }
 
@@ -44,10 +45,10 @@ const findUserData = async (token: string, next: NextFunction) => {
 }
 
 //update email verified row, set email token to null, and expires time to null
-const updateUserData = async (id: Number, userType: string, res: Response, next: NextFunction) => {
+const updateUserData = async (user_id: string, userType: string, res: Response, next: NextFunction) => {
     try {
         const user_type = userType === "patient" ? patient : doctor;
-        if (!id) {
+        if (!user_id) {
             throw new AppError("Invalid token or token has expired", 400)
         }
         await user_type.update(
@@ -56,9 +57,10 @@ const updateUserData = async (id: Number, userType: string, res: Response, next:
                 token_expires_in: null,
                 email_verify_token: null
             },
-            { where: { id } })
+            { where: { user_id } })
         res.status(200).json({
             message: "Email has been successfully verified",
+            jwt: generateJwt(user_id)
         })
     } catch (error) {
         next(error)

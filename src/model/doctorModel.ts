@@ -21,6 +21,66 @@ export const doctor = sequelize.define('doctor', {
         }
 
     },
+    profile_photo: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    state: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    years_of_experience: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    isProfileCompleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    country: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    city: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    working_days: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    hospital_address: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    zip_code: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    hospital_name: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    medical_license: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    about: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    rating: {
+        type: DataTypes.BIGINT,
+        defaultValue: null,
+    },
+    languages: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    speciality: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
     password_reset_token: {
         type: DataTypes.STRING,
         defaultValue: null
@@ -44,7 +104,7 @@ export const doctor = sequelize.define('doctor', {
     },
     user_id: {
         type: DataTypes.STRING,
-        defaultValue: "hello"
+        defaultValue: ""
     },
     token_expires_in: {
         type: DataTypes.BIGINT

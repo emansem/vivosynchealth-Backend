@@ -14,6 +14,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
                 status: "success",
                 message: "User found",
                 isEmailVerified: findUserData?.dataValues.email_verified,
+                isProfileCompleted: findUserData.dataValues.isProfileCompleted,
                 TokenExpireTime: findUserData.dataValues.token_expires_in,
                 user_type: findUserData.dataValues.user_type,
 

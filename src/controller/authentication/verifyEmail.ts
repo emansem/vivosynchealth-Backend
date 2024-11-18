@@ -11,19 +11,17 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     console.log('email verification token', updatingData)
     try {
         const userData = await findUserData(updatingData, next)
+        console.log(userData);
 
-
-        if (!userData) {
-            throw new AppError("Invalid token or token has expired", 400)
+        if (!userData && !userData.dataValues) {
+            return next(new AppError("Invalid token or token has expired", 400))
         }
-
-        const user_type = userData?.dataValues.user_type
-        const id = userData?.dataValues.user_id;
-        await updateUserData(id, user_type, res, next);
+        const { user_id, user_type, } = userData.dataValues
+        await updateUserData(user_id, user_type, res, next);
     }
 
     catch (error) {
-        next(error)
+        return next(error)
     }
 
 }
@@ -43,11 +41,9 @@ const findUserData = async (token: string, next: NextFunction) => {
         ) as any;
 
         if (user) {
-            const expireDate = user?.dataValues.token_expires_in;
-
-
-            if (user?.dataValues.token_expires_in <= Date.now()) {
-                throw new AppError('Token has expired, request a new token', 400)
+            console.log(user)
+            if (user?.dataValues.token_expires_in < Date.now()) {
+                return next(new AppError('Token has expired, request a new token', 400))
             }
         }
         return user

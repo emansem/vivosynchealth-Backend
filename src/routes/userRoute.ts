@@ -5,6 +5,7 @@ import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, update
 import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalAccount, updateWithdrawalAccount } from "../controller/userController/withdrawalAccount";
 import { getDoctorSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
 import { getUser } from "../controller/userController/getUser";
+import { updateOnboardData } from "../controller/userController/doctor/updateOnboardData";
 
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
@@ -14,7 +15,7 @@ userRoute.get("/user", protectedRoutes, getUser)
 doctorRoute
     .get('/', protectedRoutes, getAllDoctors)
     .get('/:id', protectedRoutes, getDoctorById)
-
+    .put('/onboard', protectedRoutes, updateOnboardData)
     .post('/create-plan', protectedRoutes, createAPlan)
     .put('/plan/:id', protectedRoutes, updatePlan)
     .get("/plan/:id", protectedRoutes, getDoctorPlan)

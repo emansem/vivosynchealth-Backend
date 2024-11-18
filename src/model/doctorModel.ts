@@ -7,13 +7,10 @@ export const doctor = sequelize.define('doctor', {
         primaryKey: true,
         autoIncrement: true,
     },
-    first_name: {
+    name: {
         type: DataTypes.STRING,
         allowNull: false,
 
-    },
-    last_name: {
-        type: DataTypes.STRING,
     },
     email: {
         type: DataTypes.STRING,

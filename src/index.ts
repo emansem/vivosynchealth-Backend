@@ -1,11 +1,12 @@
 import express, { Request, Response } from 'express';
 import dotenv from "dotenv";
+import cors from "cors"
 import { connection } from './config/database/mysql';
 
 import { appErrorHandeler } from './middleware/errorHandeller';
 import { generalRoute, loginRoute } from './routes/authRoute';
 import { authRoute } from './routes/authRoute';
-import { doctorRoute, patientRoute } from './routes/userRoute';
+import { doctorRoute, patientRoute, userRoute } from './routes/userRoute';
 import { paymentRoute } from './routes/paymentRoute';
 import { messageRoutes } from './routes/messages';
 dotenv.config()
@@ -14,11 +15,18 @@ const app = express();
 const port = 5740;
 
 //ALL MIDDLEWARES HERE
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 app.use(generalRoute);
 app.use('/api/auth', authRoute)
 app.use('/api', loginRoute);
+app.use("/api", userRoute);
 app.use('/api/doctors', doctorRoute);
 app.use("/api/message", messageRoutes);
 app.use('/api/patients', patientRoute);
@@ -42,4 +50,6 @@ connection.connect((err) => {
     else
         console.log('Connection to the database was successful');
 })
+
+
 

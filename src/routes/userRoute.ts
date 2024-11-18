@@ -4,13 +4,17 @@ import { protectedRoutes } from "../middleware/protection";
 import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, updatePlan } from "../controller/userController/doctor/subscriptionPlan";
 import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalAccount, updateWithdrawalAccount } from "../controller/userController/withdrawalAccount";
 import { getDoctorSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
+import { getUser } from "../controller/userController/getUser";
 
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
+export const userRoute = express.Router();
+userRoute.get("/user", protectedRoutes, getUser)
 //doctor route
 doctorRoute
     .get('/', protectedRoutes, getAllDoctors)
     .get('/:id', protectedRoutes, getDoctorById)
+
     .post('/create-plan', protectedRoutes, createAPlan)
     .put('/plan/:id', protectedRoutes, updatePlan)
     .get("/plan/:id", protectedRoutes, getDoctorPlan)

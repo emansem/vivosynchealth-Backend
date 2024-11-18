@@ -75,9 +75,6 @@ const validateTotalPages = async (totalDoctors: number, res: Response, page: num
     }
 }
 
-
-
-
 const filterDoctors = (state: string, country: string, specialization: string, city: string) => {
     const filter: any = {};
     if (country) filter.country = country;

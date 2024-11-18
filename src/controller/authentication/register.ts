@@ -1,13 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { hashPassword } from '../../utils/password';
-import { generateUserId } from '../../utils/userId';
-import { generateJwt } from '../../utils/jwt';
 import { AppError } from '../../middleware/errors';
 import { sendVerificationEmail } from '../../emails/email';
 import { generateEmailToken } from '../../helper/emailToken';
 import { patient } from '../../model/patientsModel';
 import { doctor } from '../../model/doctorModel';
 import { generateDoctorId, generatePatientId } from '../../helper/generateUserId';
+import { generateJwt } from '../../utils/jwt';
 
 
 //Create a new patient controller
@@ -15,23 +14,20 @@ import { generateDoctorId, generatePatientId } from '../../helper/generateUserId
 interface UserTypes {
     email: string;
     password: string;
-    confirmPassword: string;
-    firstName: string;
-    lastName: string;
+    name: string
     phone: string
-    gender: string;
+    gender?: string;
     user_type: string
 }
 
 //validate all user inputs
 const validateUserInputs = async (body: UserTypes, next: NextFunction): Promise<boolean> => {
+    console.log(body);
     try {
-        const { email, password, confirmPassword, firstName, phone, user_type } = body;
+        const { email, password, name, phone, user_type } = body;
 
-        if (!email || !password || !confirmPassword || !firstName || !phone || !user_type) {
+        if (!email || !password || !name || !phone || !user_type) {
             throw new AppError('All fields are required', 400);
-        } else if (confirmPassword !== password) {
-            throw new AppError('Password donot match', 400);
         }
         return true
 
@@ -48,10 +44,11 @@ export const createAccount = async (req: Request, res: Response, next: NextFunct
         //validate the user inputs
         const isValidInputs = await validateUserInputs(req.body, next);
         if (!isValidInputs) {
-            throw new AppError("Invlid input data", 400)
+            throw new AppError("Invalid input data", 400)
         }
         const matchUserType = user_type === "patient" ? patient : doctor
         const existingEmail = await matchUserType.findOne({ where: { email } });
+
         if (existingEmail) {
             throw new AppError('This email have been used already', 400);
         } else if (user_type === "patient") {
@@ -70,13 +67,13 @@ export const createAccount = async (req: Request, res: Response, next: NextFunct
 
 //fuction save patients data in the database 
 const savePatientData = async (body: UserTypes, password: string, next: NextFunction) => {
-    const { email, firstName, lastName, phone, gender } = body
+    const { email, name, phone, gender } = body
+
     try {
         const passToSave = await hashPassword(password) as string;
-        const emailTokenEXpires = Date.now() + 20 * 60 * 1000;
+        const emailTokenEXpires = Date.now() + 20 * 20 * 60 * 1000;
         const patientData = patient.create({
-            first_name: firstName,
-            last_name: lastName,
+            name: name,
             phone_number: phone,
             email: email,
             password: passToSave,
@@ -98,13 +95,12 @@ const savePatientData = async (body: UserTypes, password: string, next: NextFunc
 
 //fuction save doctorData data in the database 
 const saveDoctorData = async (body: UserTypes, password: string, next: NextFunction) => {
-    const { email, firstName, lastName, phone, gender } = body
+    const { email, name, phone, gender } = body
     try {
         const passToSave = await hashPassword(password) as string;
-        const emailTokenEXpires = Date.now() + 20 * 60 * 1000;
+        const emailTokenEXpires = Date.now() + 60 * 1000;
         const doctorData = doctor.create({
-            first_name: firstName,
-            last_name: lastName,
+            name: name,
             phone_number: phone,
             email: email,
             password: passToSave,
@@ -128,15 +124,17 @@ const saveDoctorData = async (body: UserTypes, password: string, next: NextFunct
 const getUserData = async (res: Response, userData: any, next: NextFunction) => {
     try {
         const emailToken = userData.email_verify_token
-        const veryLink = `http://localhost:5740/verify-email?token=${emailToken}`
+        const veryLink = `http://localhost:3000/auth/verify-email-success?token=${emailToken}`
         try {
-            await sendVerificationEmail(userData.first_name, userData.email, veryLink)
+            await sendVerificationEmail(userData.name, userData.email, veryLink)
         } catch (error) {
             throw new AppError('Error sending email', 400)
         }
+        console.log("user id", userData.user_id)
         res.status(201).json({
             status: 'success',
             message: "Account created successfully, please verify your email to login",
+            jwt: generateJwt(userData.user_id)
 
         })
 

@@ -7,9 +7,15 @@ import findUser from "../../helper/findUser";
 import { generateJwt } from "../../utils/jwt";
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.query.token as string;
+    const { updatingData } = req.body;
+    console.log('email verification token', updatingData)
     try {
-        const userData = await findUserData(token, next)
+        const userData = await findUserData(updatingData, next)
+
+
+        if (!userData) {
+            throw new AppError("Invalid token or token has expired", 400)
+        }
 
         const user_type = userData?.dataValues.user_type
         const id = userData?.dataValues.user_id;
@@ -24,6 +30,8 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
 
 //find user from the database
 const findUserData = async (token: string, next: NextFunction) => {
+    console.log("Email verification token", token)
+
     try {
         //Find the user in the database by email token
         const user = await findUser(
@@ -33,7 +41,11 @@ const findUserData = async (token: string, next: NextFunction) => {
             "Invlide token or token has expired",
             400
         ) as any;
-        if (!user) {
+
+        if (user) {
+            const expireDate = user?.dataValues.token_expires_in;
+
+
             if (user?.dataValues.token_expires_in <= Date.now()) {
                 throw new AppError('Token has expired, request a new token', 400)
             }
@@ -46,6 +58,7 @@ const findUserData = async (token: string, next: NextFunction) => {
 
 //update email verified row, set email token to null, and expires time to null
 const updateUserData = async (user_id: string, userType: string, res: Response, next: NextFunction) => {
+
     try {
         const user_type = userType === "patient" ? patient : doctor;
         if (!user_id) {

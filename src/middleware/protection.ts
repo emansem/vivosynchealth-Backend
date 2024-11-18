@@ -13,6 +13,7 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         // const userIp = userLocation.geoplugin_request
         const { authorization } = req.headers;
 
+        console.log(authorization);
         if (!authorization) throw new AppError("Please login to access this page", 401)
         const token = authorization?.replace("Bearer", "").trim();
 
@@ -27,10 +28,10 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         //check if the user exit in the database
         const user = await findUser(id, "user_id", next, "User not found, please create an account", 404);
 
+
         if (!user) throw new AppError("User not found", 404)
         if (!userLocation) throw new AppError("Error fetching user location", 400)
         const userIp = userLocation?.geoplugin_request;
-
 
         const lastChangePassword = user?.dataValues.password_updated_at;
         //check the last time the user change his password, the last time the user login and check if the IP address has change

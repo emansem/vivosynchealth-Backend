@@ -1,15 +1,16 @@
 import nodemailer from 'nodemailer';
-import pug from "pug"
 import path from "path";
 import fs from "fs"
+import dotenv from "dotenv";
+dotenv.config();
 // Nodemailer transport setup
 const transporter = nodemailer.createTransport({
     port: 587,
-    host: "smtp.titan.email",
+    host: process.env.EMAIL_HOST,
     secure: false,
     auth: {
-        user: "info@royaltrading.site",
-        pass: "Bungsem45@",
+        user: process.env.EMAIL_USER_NAME,
+        pass: process.env.EMAIL_PASSWORD
     },
 });
 
@@ -23,7 +24,7 @@ export const sendVerificationEmail = async (fistName: string, email: string, ver
             .replace("{{verifyLink}}", verifyLInk)
         // Email options
         const mailOptions = {
-            from: '"VIvoSyncHealth" info@royaltrading.site',
+            from: `VivoSynchealth  ${process.env.EMAIL_USER_NAME}`,
             to: email,
             subject: 'Please Verify Your Email',
             html: html,

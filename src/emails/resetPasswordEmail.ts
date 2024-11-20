@@ -1,15 +1,17 @@
 import nodemailer from 'nodemailer';
-import pug from "pug"
 import path from "path";
 import fs from "fs"
+import dotenv from "dotenv";
+dotenv.config()
+
 // Nodemailer transport setup
 const transporter = nodemailer.createTransport({
     port: 587,
-    host: "smtp.titan.email",
+    host: process.env.EMAIL_HOST,
     secure: false,
     auth: {
-        user: "info@royaltrading.site",
-        pass: "Bungsem45@",
+        user: process.env.EMAIL_USER_NAME,
+        pass: process.env.EMAIL_PASSWORD,
     },
 });
 
@@ -23,7 +25,7 @@ export const sendResentPasswordEmail = async (fistName: string, email: string, r
             .replace("{{resetLink}}", resetLInk)
         // Email options
         const mailOptions = {
-            from: '"VIvoSyncHealth" info@royaltrading.site',
+            from: `VivoSyncHealth ${process.env.EMAIL_USER_NAME}`,
             to: email,
             subject: 'Reset your password',
             html: html,

@@ -16,6 +16,9 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         console.log(authorization);
         if (!authorization) throw new AppError("Please login to access this page", 401)
         const token = authorization?.replace("Bearer", "").trim();
+        if (token) {
+            throw new AppError("Please provid a valid token", 401)
+        }
 
         const decordToken = verifyTOken(token);
 

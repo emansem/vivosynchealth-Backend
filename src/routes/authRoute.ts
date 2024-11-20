@@ -5,13 +5,14 @@ import { createAccount } from "../controller/authentication/register";
 import { forgotPassword } from "../controller/authentication/forgotPassword";
 import { resetPassword } from "../controller/authentication/resetPassword";
 import { resendLInk } from "../controller/authentication/resendLink";
-import { protectedRoutes } from "../middleware/protection";
+import { verifyPasswordResetToken } from "../controller/authentication/verifyPasswordResetToken";
 export const authRoute = express.Router();
 
 export const generalRoute = express.Router();
 export const loginRoute = express.Router();
 authRoute
     .post('/register', createAccount)
+    .post("/verify-password-token", verifyPasswordResetToken)
     .post('/forgot-password', forgotPassword)
     .put('/verify-email/', verifyEmail)
     .put('/resend-link/', resendLInk)

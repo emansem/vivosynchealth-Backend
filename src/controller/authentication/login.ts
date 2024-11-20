@@ -14,8 +14,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         const userIp = userLocation.geoplugin_request;
         const { email, password } = req.body
         if (!email || !password) throw new AppError("All fields are required", 400)
+        if (!userIp) {
+            return next(new AppError("Something went wrong, please try again", 400))
+        }
         //Find the user in the database by email
-        const user = await findUser(email, "email", next, "Invalid email adress or user not found", 400) as any
+        const user = await findUser(email, "email", next, "Invalid email address or user not found", 400) as any
 
         if (! await comparePassword(password, user?.dataValues.password)) {
             throw new AppError('Invalid email or password ', 404);

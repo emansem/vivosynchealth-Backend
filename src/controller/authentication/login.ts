@@ -19,7 +19,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             return next(new AppError("Something went wrong, please try again", 400))
         }
         //Find the user in the database by email
-        const user = await findUser(email, "email", next, "Invalid email address or user not found", 400) as any
+        const user = await findUser(email, "email", next, "No account with this email", 400) as any
 
         if (! await comparePassword(password, user?.dataValues.password)) {
             throw new AppError('Invalid email or password ', 400);

@@ -13,6 +13,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
             res.status(200).json({
                 status: "success",
                 message: "User found",
+                email: findUserData?.dataValues.email,
                 isEmailVerified: findUserData?.dataValues.email_verified,
                 isProfileCompleted: findUserData.dataValues.isProfileCompleted,
                 TokenExpireTime: findUserData.dataValues.token_expires_in,

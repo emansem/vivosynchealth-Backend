@@ -9,15 +9,16 @@ import { sendVerificationEmail } from "../../emails/email";
 
 export const resendLInk = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { token } = req.body;
+        const { email: userEmail } = req.body;
 
-        console.log("Email verification token", token)
 
-        if (!token) {
+        console.log("Email verification token", userEmail)
+
+        if (!userEmail) {
             return next(new AppError("Please provide a valid token", 400));
         }
 
-        const user = await findUserData(token, next);
+        const user = await findUserData(userEmail, next);
         if (!user || !user.dataValues) {
             return next(new AppError("Invalid user or token", 400));
         }
@@ -34,12 +35,11 @@ const findUserData = async (token: string, next: NextFunction) => {
     try {
         const user = await findUser(
             token,
-            "email_verify_token",
+            "email",
             next,
-            "Invalid token or token has expired",
+            "User account not found, please create an account",
             400
         );
-        console.log(user)
 
         if (!user) {
             return next(new AppError("Invalid token", 400));

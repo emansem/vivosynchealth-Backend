@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer';
 import path from "path";
 import fs from "fs"
 import dotenv from "dotenv";
+import { AppError } from '../middleware/errors';
+import { NextFunction } from 'express';
 dotenv.config();
 // Nodemailer transport setup
 const transporter = nodemailer.createTransport({
@@ -15,7 +17,7 @@ const transporter = nodemailer.createTransport({
 });
 
 
-export const sendVerificationEmail = async (fistName: string, email: string, verifyLInk: string) => {
+export const sendVerificationEmail = async (fistName: string, email: string, verifyLInk: string, next: NextFunction): Promise<boolean> => {
     try {
 
         let html = fs.readFileSync(path.join(__dirname, "../view/verifyEmail.html"), "utf8")
@@ -32,9 +34,11 @@ export const sendVerificationEmail = async (fistName: string, email: string, ver
 
         // Send the email
         await transporter.sendMail(mailOptions);
+        return true
         // console.log('Verification email sent to:', html);
     } catch (error) {
-        console.error('Error sending email:', error);
+        next(new AppError("Error sending email", 400))
+        return false
     }
 };
 

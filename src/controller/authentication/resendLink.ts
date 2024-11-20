@@ -23,7 +23,10 @@ export const resendLInk = async (req: Request, res: Response, next: NextFunction
             return next(new AppError("Invalid user or token", 400));
         }
 
-        const { user_type, user_id, name, email } = user.dataValues;
+        const { user_type, user_id, name, email_verified, email } = user.dataValues;
+        if (email_verified) {
+            return next(new AppError("Email has been verified already", 400));
+        }
 
         await updateUserData(user_id, user_type, res, next, name, email);
     } catch (error) {
@@ -72,7 +75,7 @@ const updateUserData = async (
         // Update user first
         await user_type.update(
             {
-                email_verified: false,
+
                 token_expires_in: tokenExpiry,
                 email_verify_token: emailToken
             },
@@ -81,7 +84,10 @@ const updateUserData = async (
 
         // Try to send email
         const verifyLink = `http://localhost:3000/auth/verify-email-success?token=${emailToken}`;
-        await sendVerificationEmail(name, email, verifyLink);
+        const sendingEmail = await sendVerificationEmail(name, email, verifyLink, next);
+        if (!sendingEmail) {
+            return next(new AppError("Something went wrong,please try again", 500));
+        }
 
         // Only send success response if everything worked
         return res.status(200).json({
@@ -91,6 +97,6 @@ const updateUserData = async (
 
     } catch (error) {
         console.error("Email sending error:", error);
-        return next(new AppError("Failed to send verification email", 500));
+        return next(error)
     }
 };

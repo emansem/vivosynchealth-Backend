@@ -85,10 +85,10 @@ const getUserData = async (res: Response, userData: any, next: NextFunction) => 
     try {
         const emailvericationToken = userData.email_verify_token
         const emailVerificationLink = `http://localhost:3000/auth/verify-email-success?token=${emailvericationToken}`
-        try {
-            await sendVerificationEmail(userData.name, userData.email, emailVerificationLink)
-        } catch (error) {
-            throw new AppError('Error sending email', 400)
+
+        const sendingEmail = await sendVerificationEmail(userData.name, userData.email, emailVerificationLink, next)
+        if (!sendingEmail) {
+            return next(new AppError("Something went wrong,please try again", 500));
         }
 
         res.status(201).json({

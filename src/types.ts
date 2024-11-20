@@ -16,3 +16,14 @@ export interface DoctorOnboardingData {
     zip_code: string;
     working_days: string;
 }
+
+//Register field types
+
+export interface RegisterField {
+    email: string;
+    password: string;
+    name: string
+    phone: string
+    gender?: string;
+    user_type: string
+}

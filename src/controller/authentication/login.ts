@@ -5,6 +5,7 @@ import findUser from "../../helper/findUser";
 import { patient } from "../../model/patientsModel";
 import { doctor } from "../../model/doctorModel";
 import { getUserCurrentLocation } from "../../services/getUserLocation";
+import { generateJwt } from "../../utils/jwt";
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -21,13 +22,13 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         const user = await findUser(email, "email", next, "Invalid email address or user not found", 400) as any
 
         if (! await comparePassword(password, user?.dataValues.password)) {
-            throw new AppError('Invalid email or password ', 404);
+            throw new AppError('Invalid email or password ', 400);
         }
         else if (!user.dataValues.email_verified) {
             throw new AppError('Please verify your email adress ', 400)
         }
         const userType = user.dataValues.user_type === "patient" ? patient : doctor;
-
+        const jwtToken = generateJwt(user?.dataValues.user_id);
 
         await userType.update(
             {
@@ -45,9 +46,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         res.status(200).json({
             status: "success",
             message: 'User successfully login',
-            user_type: user.dataValues.user_type,
-
-
+            jwt: jwtToken
         })
     } catch (error) {
         next(error)

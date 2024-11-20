@@ -12,14 +12,14 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     try {
 
         const token = req.query.token as string;
-        const { password, confirmPassword } = req.body;
+        const { password, confirm_password } = req.body;
         if (!token) {
             throw new AppError('Invalid token or token has expired', 400);
         }
         const user = await findUser(token, "password_reset_token", next, "Invalid token or token has expired", 400)
-        if (!password || !confirmPassword) {
+        if (!password || !confirm_password) {
             throw new AppError("Please fill all the fields", 400);
-        } else if (password !== confirmPassword) {
+        } else if (password !== confirm_password) {
             throw new AppError("Password do not match", 400);
         }
 
@@ -42,7 +42,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         res.status(200).json({
             status: "success",
             message: "Password has been reseted successfully, please login now",
-            token: jwtToken
+
         })
     } catch (error) {
         next(error)

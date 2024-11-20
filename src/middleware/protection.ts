@@ -13,10 +13,9 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         // const userIp = userLocation.geoplugin_request
         const { authorization } = req.headers;
 
-        console.log(authorization);
         if (!authorization) throw new AppError("Please login to access this page", 401)
         const token = authorization?.replace("Bearer", "").trim();
-        if (token) {
+        if (!token) {
             throw new AppError("Please provid a valid token", 401)
         }
 
@@ -26,11 +25,9 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
 
         const { id, exp, iat } = decordToken as string | number | any;
         //check if the token has expired
-        console.log(iat);
         if (exp < Date.now() / 1000) throw new AppError("Session has expired, please login", 401);
         //check if the user exit in the database
         const user = await findUser(id, "user_id", next, "User not found, please create an account", 404);
-
 
         if (!user) throw new AppError("User not found", 404)
         if (!userLocation) throw new AppError("Error fetching user location", 400)

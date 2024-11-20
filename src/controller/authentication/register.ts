@@ -58,7 +58,7 @@ const saveUserData = async (body: RegisterField, password: string, next: NextFun
 
     try {
         const passwordToSave = await hashPassword(password) as string;
-        const tokenExpireTime = Date.now() + 20 * 20 * 60 * 1000;
+        const tokenExpireTime = Date.now() + 60 * 1000;
         const userData = matchUserType.create({
             name: name,
             phone_number: phone,
@@ -93,6 +93,7 @@ const getUserData = async (res: Response, userData: any, next: NextFunction) => 
 
         res.status(201).json({
             status: 'success',
+            token: emailvericationToken,
             message: "Account created successfully, please verify your email",
             jwt: generateJwt(userData.user_id)
 

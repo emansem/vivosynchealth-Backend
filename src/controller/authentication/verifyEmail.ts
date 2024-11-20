@@ -7,11 +7,10 @@ import findUser from "../../helper/findUser";
 import { generateJwt } from "../../utils/jwt";
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
-    const { updatingData } = req.body;
-    console.log('email verification token', updatingData)
+    const { token } = req.body;
+    console.log('email verification token', token)
     try {
-        const userData = await findUserData(updatingData, next)
-        console.log(userData);
+        const userData = await findUserData(token, next)
 
         if (!userData && !userData.dataValues) {
             return next(new AppError("Invalid token or token has expired", 400))
@@ -28,7 +27,6 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
 
 //find user from the database
 const findUserData = async (token: string, next: NextFunction) => {
-    console.log("Email verification token", token)
 
     try {
         //Find the user in the database by email token

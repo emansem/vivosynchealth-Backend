@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import findUser from "../../helper/findUser";
-import { threadId } from "worker_threads";
 import { AppError } from "../../middleware/errors";
 
 export const getUser = async (req: Request, res: Response, next: NextFunction) => {
     const user_id = (req as any).user;
+    console.log('user account id', user_id)
     try {
         const findUserData = await findUser(user_id, 'user_id', next, "User not found", 404)
         if (!findUserData) {

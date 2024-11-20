@@ -3,21 +3,21 @@ import { AppError } from "../../middleware/errors";
 import findUser from "../../helper/findUser";
 import { doctor } from "../../model/doctorModel";
 import { patient } from "../../model/patientsModel";
-import { generateJwt } from "../../utils/jwt";
 import { generateEmailToken } from "../../helper/emailToken";
 import { sendVerificationEmail } from "../../emails/email";
 
 
 export const resendLInk = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { updatingData } = req.body;
-        console.log('email verification token', updatingData);
+        const { token } = req.body;
 
-        if (!updatingData) {
+        console.log("Email verification token", token)
+
+        if (!token) {
             return next(new AppError("Please provide a valid token", 400));
         }
 
-        const user = await findUserData(updatingData, next);
+        const user = await findUserData(token, next);
         if (!user || !user.dataValues) {
             return next(new AppError("Invalid user or token", 400));
         }

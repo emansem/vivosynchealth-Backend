@@ -12,7 +12,7 @@ export const generalRoute = express.Router();
 export const loginRoute = express.Router();
 authRoute
     .post('/register', createAccount)
-    .post("/verify-password-token", verifyPasswordResetToken)
+    .put("/verify-password-token", verifyPasswordResetToken)
     .post('/forgot-password', forgotPassword)
     .put('/verify-email/', verifyEmail)
     .put('/resend-link/', resendLInk)

@@ -2,14 +2,12 @@ import { NextFunction, Response, Request } from "express";
 import { DoctorOnboardingData } from "../../../types";
 import { AppError } from "../../../middleware/errors";
 import { doctor } from "../../../model/doctorModel";
-import { where } from "sequelize";
 
 export const updateOnboardData = async (req: Request, res: Response, next: NextFunction
 ) => {
 
     try {
         const onboardData = req.body as DoctorOnboardingData;
-        console.log(onboardData)
         const doctorId = (req as any).user;
 
         const updateDoctor = await doctor.update(

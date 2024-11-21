@@ -21,7 +21,7 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
         const token = generateEmailToken()
         //Save the password reset token
         await savePasswordResetToken(token, user.dataValues.user_id, user.dataValues.user_type, next)
-        const resetLink = `http://localhost:3000/auth/verify-password-token?token=${token}`
+        const resetLink = `http://localhost:3000/auth/verify/password-token?token=${token}`
         //send the user email link to verify his account
         await sendResentPasswordEmail(user.dataValues.name, user.dataValues.email, resetLink);
 

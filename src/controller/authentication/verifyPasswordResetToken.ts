@@ -5,7 +5,7 @@ import findUser from "../../helper/findUser";
 
 export const verifyPasswordResetToken = async (req: Request, res: Response, next: NextFunction) => {
     const { token } = req.body;
-    console.log("Reset token", token)
+    console.log(token)
     try {
         if (!token) {
             throw new AppError("Invalid token,Please provide a valid token", 400);

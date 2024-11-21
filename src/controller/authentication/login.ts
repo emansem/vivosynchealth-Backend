@@ -8,8 +8,6 @@ import { getUserCurrentLocation } from "../../services/getUserLocation";
 import { generateJwt } from "../../utils/jwt";
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
-
-
     try {
         const userLocation = await getUserCurrentLocation();
         const userIp = userLocation.geoplugin_request;
@@ -19,16 +17,21 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             return next(new AppError("Something went wrong, please try again", 400))
         }
         //Find the user in the database by email
-        const user = await findUser(email, "email", next, "No account with this email", 400) as any
+        const user = await findUser(email, "email", next, "No account found with this email", 400) as any
 
         if (! await comparePassword(password, user?.dataValues.password)) {
             throw new AppError('Invalid email or password ', 400);
         }
         else if (!user.dataValues.email_verified) {
             throw new AppError('Please verify your email adress ', 400)
+        } else if (user.user_type === 'doctor' && !user.dataValues.isProfileCompleted) {
+            throw new AppError("Please complete your profile to access the dashboard", 400)
+
         }
+
         const userType = user.dataValues.user_type === "patient" ? patient : doctor;
         const jwtToken = generateJwt(user?.dataValues.user_id);
+
 
         await userType.update(
             {

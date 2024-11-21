@@ -6,6 +6,8 @@ import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdr
 import { getDoctorSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
 import { getUser } from "../controller/userController/getUser";
 import { updateOnboardData } from "../controller/userController/doctor/updateOnboardData";
+import { authoriseUserAccess } from "../middleware/authorization";
+import { USER_TYPES } from "../constant";
 
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
@@ -15,7 +17,7 @@ userRoute.get("/user", protectedRoutes, getUser)
 doctorRoute
     .get('/', protectedRoutes, getAllDoctors)
     .get('/:id', protectedRoutes, getDoctorById)
-    .put('/onboard', protectedRoutes, updateOnboardData)
+    .put('/onboard', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), updateOnboardData)
     .post('/create-plan', protectedRoutes, createAPlan)
     .put('/plan/:id', protectedRoutes, updatePlan)
     .get("/plan/:id", protectedRoutes, getDoctorPlan)

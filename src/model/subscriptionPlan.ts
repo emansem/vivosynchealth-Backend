@@ -11,11 +11,40 @@ export const plan = sequelize.define("plans", {
         type: DataTypes.BIGINT,
         allowNull: false,
     },
+    plan_status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    plan_type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+
+    },
+    isRefundEnabled: {
+        type: DataTypes.STRING,
+        allowNull: false,
+
+    },
+    plan_duration: {
+        type: DataTypes.STRING,
+        allowNull: false,
+
+    },
+    discount_percentage: {
+        type: DataTypes.BIGINT,
+
+
+    },
+    refund_period: {
+        type: DataTypes.BIGINT,
+
+
+    },
     doctor_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    plan_items: {
+    plan_features: {
         type: DataTypes.TEXT,
 
     },

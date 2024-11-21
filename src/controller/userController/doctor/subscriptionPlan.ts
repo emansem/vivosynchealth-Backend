@@ -1,21 +1,29 @@
 import { NextFunction, Response, Request } from "express";
 import { plan } from "../../../model/subscriptionPlan";
 import { AppError } from "../../../middleware/errors";
+import { SubscriptionPlanDataType } from "../../../types";
+import findUser from "../../../helper/findUser";
 
 export const createAPlan = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const doctorId = (req as any).user;
-        const { amount, name, plan_items } = req.body;
-        if (!amount || !name) {
+        const { planAmount, planName, planFeatures, planType, planDuration, isRefundEnabled, discountPercentage, refundDays, } = req.body as SubscriptionPlanDataType
+        if (!planAmount || !planName) {
             throw new AppError("Amount and name are required", 400);
         }
 
         //THE PLAN DETAILS IN THE DATABASE
         const savedDetails = await plan.create({
-            name,
-            amount,
+            name: planName,
+            amount: planAmount,
             doctor_id: doctorId,
-            plan_items: JSON.stringify(plan_items)
+            isRefundEnabled,
+            plan_type: planType,
+            discount_percentage: discountPercentage,
+            refund_period: refundDays,
+            plan_duration: planDuration,
+            plan_status: "active",
+            plan_features: JSON.stringify(planFeatures)
         })
         res.status(201).json({
             status: "success",

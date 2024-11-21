@@ -27,3 +27,18 @@ export interface RegisterField {
     gender?: string;
     user_type: string
 }
+export type PlanFeatures = {
+    id: number;
+    value: string;
+};
+export interface SubscriptionPlanDataType {
+    planName: string,
+    planAmount: number,
+    discountPercentage: number,
+    planType: string,
+    planDuration: string,
+    isRefundEnabled: "yes" | "no" | "",
+    refundDays: string,
+    planFeatures: PlanFeatures[]
+
+}

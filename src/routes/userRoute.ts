@@ -18,7 +18,7 @@ doctorRoute
     .get('/', protectedRoutes, getAllDoctors)
     .get('/:id', protectedRoutes, getDoctorById)
     .put('/onboard', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), updateOnboardData)
-    .post('/create-plan', protectedRoutes, createAPlan)
+    .post('/create-plan', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), createAPlan)
     .put('/plan/:id', protectedRoutes, updatePlan)
     .get("/plan/:id", protectedRoutes, getDoctorPlan)
     .get('/plans/:doctor_id', protectedRoutes, getAllDoctorPlans)

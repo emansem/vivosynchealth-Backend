@@ -36,6 +36,7 @@ export interface SubscriptionPlanDataType {
     planAmount: number,
     discountPercentage: number,
     planType: string,
+
     planDuration: string,
     isRefundEnabled: "yes" | "no" | "",
     refundDays: string,

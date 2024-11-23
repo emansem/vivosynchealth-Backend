@@ -7,6 +7,7 @@ export const getUser = async (req: Request, res: Response, next: NextFunction) =
     console.log('user account id', user_id)
     try {
         const findUserData = await findUser(user_id, 'user_id', next, "User not found", 404)
+        console.log(findUserData)
         if (!findUserData) {
             throw new AppError("User account not found", 400);
         } else {

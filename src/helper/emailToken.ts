@@ -1,3 +1,4 @@
-import crypto from "crypto"
-
-export const generateEmailToken = () => crypto.randomBytes(32).toString('hex');
+export const generateEmailToken = () => {
+    // Generates a random 5-digit number between 10000 and 99999
+    return Math.floor(10000 + Math.random() * 90000).toString();
+};

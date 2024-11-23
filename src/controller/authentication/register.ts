@@ -84,16 +84,15 @@ const saveUserData = async (body: RegisterField, password: string, next: NextFun
 const getUserData = async (res: Response, userData: any, next: NextFunction) => {
     try {
         const emailvericationToken = userData.email_verify_token
-        const emailVerificationLink = `http://localhost:3000/auth/verify-email-success?token=${emailvericationToken}`
 
-        const sendingEmail = await sendVerificationEmail(userData.name, userData.email, emailVerificationLink, next)
+        const sendingEmail = await sendVerificationEmail(userData.name, userData.email, emailvericationToken, next)
         if (!sendingEmail) {
             return next(new AppError("Something went wrong,please try again", 500));
         }
 
         res.status(201).json({
             status: 'success',
-            token: emailvericationToken,
+            email: userData.email,
             message: "Account created successfully, please verify your email",
             jwt: generateJwt(userData.user_id)
 

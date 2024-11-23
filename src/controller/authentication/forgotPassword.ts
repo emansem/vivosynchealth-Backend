@@ -21,13 +21,14 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
         const token = generateEmailToken()
         //Save the password reset token
         await savePasswordResetToken(token, user.dataValues.user_id, user.dataValues.user_type, next)
-        const resetLink = `http://localhost:3000/auth/verify/password-token?token=${token}`
+
         //send the user email link to verify his account
-        await sendResentPasswordEmail(user.dataValues.name, user.dataValues.email, resetLink);
+        await sendResentPasswordEmail(user.dataValues.name, user.dataValues.email, token);
 
         res.status(200).json({
+            token,
             status: "success",
-            message: "A password reset link has been sent to your email"
+            message: "A password reset code, has been sent to your email"
         })
 
     } catch (error) {
@@ -40,7 +41,9 @@ const savePasswordResetToken = async (token: string, id: number, user_type: stri
     try {
         const userMatch = user_type === "patient" ? patient : doctor;
         await userMatch.update(
+
             {
+                email_verify_token: token,
                 password_reset_token: token,
                 token_expires_in: Date.now() + 30 * 60 * 1000
             },

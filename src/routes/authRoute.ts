@@ -4,7 +4,7 @@ import { verifyEmail } from "../controller/authentication/verifyEmail";
 import { createAccount } from "../controller/authentication/register";
 import { forgotPassword } from "../controller/authentication/forgotPassword";
 import { resetPassword } from "../controller/authentication/resetPassword";
-import { resendLInk } from "../controller/authentication/resendLink";
+import { resendLink } from "../controller/authentication/resendLink";
 import { verifyPasswordResetToken } from "../controller/authentication/verifyPasswordResetToken";
 export const authRoute = express.Router();
 
@@ -15,7 +15,7 @@ authRoute
     .put("/verify-password-token", verifyPasswordResetToken)
     .post('/forgot-password', forgotPassword)
     .put('/verify-email/', verifyEmail)
-    .put('/resend-link/', resendLInk)
+    .put('/resend-link/', resendLink)
     .post("/login", loginUser)
     .put('/reset-password/', resetPassword)
 

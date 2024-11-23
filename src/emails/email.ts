@@ -17,13 +17,13 @@ const transporter = nodemailer.createTransport({
 });
 
 
-export const sendVerificationEmail = async (fistName: string, email: string, verifyLInk: string, next: NextFunction): Promise<boolean> => {
+export const sendVerificationEmail = async (fistName: string, email: string, code: string, next: NextFunction): Promise<boolean> => {
     try {
 
         let html = fs.readFileSync(path.join(__dirname, "../view/verifyEmail.html"), "utf8")
         html = html
             .replace("{{username}}", fistName)
-            .replace("{{verifyLink}}", verifyLInk)
+            .replace("{{code}}", code)
         // Email options
         const mailOptions = {
             from: `VivoSynchealth  ${process.env.EMAIL_USER_NAME}`,

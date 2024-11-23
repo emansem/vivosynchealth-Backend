@@ -16,13 +16,13 @@ const transporter = nodemailer.createTransport({
 });
 
 
-export const sendResentPasswordEmail = async (fistName: string, email: string, resetLInk: string) => {
+export const sendResentPasswordEmail = async (fistName: string, email: string, code: string) => {
     try {
 
         let html = fs.readFileSync(path.join(__dirname, "../view/resetPassword.html"), "utf8")
         html = html
             .replace("{{username}}", fistName)
-            .replace("{{resetLink}}", resetLInk)
+            .replace("{{code}}", code)
         // Email options
         const mailOptions = {
             from: `VivoSyncHealth ${process.env.EMAIL_USER_NAME}`,

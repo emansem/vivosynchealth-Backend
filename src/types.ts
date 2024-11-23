@@ -43,3 +43,9 @@ export interface SubscriptionPlanDataType {
     planFeatures: PlanFeatures[]
 
 }
+
+export interface ResendLinkRequest {
+    email?: string;
+    token?: string;
+    subject: 'VERIFY_EMAIL' | 'RESET_PASSWORD';
+}

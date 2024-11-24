@@ -32,17 +32,18 @@ export type PlanFeatures = {
     value: string;
 };
 export interface SubscriptionPlanDataType {
-    planName: string,
-    planAmount: number,
-    discountPercentage: number,
-    planType: string,
-
-    planDuration: string,
+    name: string,
+    amount: number,
+    discount_percentage: number,
+    plan_type: string,
+    plan_duration: string,
     isRefundEnabled: "yes" | "no" | "",
-    refundDays: string,
-    planFeatures: PlanFeatures[]
+    refund_period: string,
+    plan_status: "active" | "inactive"
+    plan_features: PlanFeatures[]
 
 }
+
 
 export interface ResendLinkRequest {
     email?: string;

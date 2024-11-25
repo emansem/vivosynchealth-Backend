@@ -15,13 +15,14 @@ export const userRoute = express.Router();
 userRoute.get("/user", protectedRoutes, getUser)
 //doctor route
 doctorRoute
-    .get('/', protectedRoutes, getAllDoctors)
+    .get('/plans', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorPlans)
+    .get('/all-doctors', protectedRoutes, getAllDoctors)
     .get('/:id', protectedRoutes, getDoctorById)
     .put('/onboard', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), updateOnboardData)
     .post('/create-plan', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), createAPlan)
     .put('/plan/:id', protectedRoutes, updatePlan)
     .get("/plan/:id", protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorPlan)
-    .get('/plans/:doctor_id', protectedRoutes, getAllDoctorPlans)
+    .get('/plans', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorPlans)
     .delete("/plan/:id", protectedRoutes, deleteDoctorPlan)
     .post("/withdrawal-account/create", protectedRoutes, createWithdrawalAccount)
     .put('/withdrawal-account/update', protectedRoutes, updateWithdrawalAccount)

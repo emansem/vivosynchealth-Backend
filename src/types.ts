@@ -35,11 +35,11 @@ export interface SubscriptionPlanDataType {
     name: string,
     amount: number,
     discount_percentage: number,
-    plan_type: string,
-    plan_duration: string,
+    plan_type: "basic" | "standard" | "premium"
+    plan_duration: "30" | "1",
     isRefundEnabled: "yes" | "no" | "",
     refund_period: string,
-    plan_status: "active" | "inactive"
+    plan_status: "active" | "inactive",
     plan_features: PlanFeatures[]
 
 }

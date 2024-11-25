@@ -36,7 +36,7 @@ export const createAPlan = async (req: Request, res: Response, next: NextFunctio
 
         // Prevent duplicate plan types
         if (isPlanTypeDuplicated.length > 0) {
-            const capitalizedPlanType = plan_type.charAt(0).toUpperCase() + plan_type.slice(1);
+            const capitalizedPlanType = plan_type?.charAt(0).toUpperCase() + plan_type?.slice(1);
             throw new AppError(
                 `${capitalizedPlanType} plan type already exist, choose another one`,
                 400
@@ -53,7 +53,7 @@ export const createAPlan = async (req: Request, res: Response, next: NextFunctio
             discount_percentage,
             refund_period,
             plan_duration,
-            plan_status: "active",
+            plan_status: plan_status,
             plan_features: JSON.stringify(plan_features)
         });
 
@@ -146,12 +146,16 @@ export const getDoctorPlan = async (req: Request, res: Response, next: NextFunct
 
 export const getAllDoctorPlans = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const id = req.params.doctor_id
-        if (!id || id) throw new AppError("Please provid a valid id", 400);
+        const doctor_id = (req as any).user;
 
-        const planDetails = await plan.findAll({ where: { doctor_id: id } });
+
+        const planDetails = await plan.findAll({ where: { doctor_id } });
+        if (!planDetails) return
+        console.log(planDetails)
         res.status(200).json({
-            status: "succcess",
+            result: planDetails.length,
+            status: "success",
+            message: "Plan details retrieved successfully retrived",
             data: {
                 plans: planDetails
             }
@@ -165,7 +169,7 @@ export const getAllDoctorPlans = async (req: Request, res: Response, next: NextF
 export const deleteDoctorPlan = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const id = parseInt(req.params.id);
-        if (!id || isNaN(id)) throw new AppError("Please provid a valid id", 400);
+        if (!id) throw new AppError("Please provid a valid id", 400);
         const deletedItem = await plan.destroy({ where: { id: id } });
         //check if the id exist in the database 
         if (!deletedItem) throw new AppError("No plan found, please provid a valid id", 404);

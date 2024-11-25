@@ -37,3 +37,13 @@ export const ERROR_MESSAGES = {
         INVALID_FORMAT: "Invalid email format"
     }
 } as const;
+
+export const SENSITIVE_USER_FIELDS = [
+    'password',
+    'password_reset_token',
+    'email_verify_token',
+    "password_updated_at",
+    "last_login_ip",
+    "token_expires_in",
+    "email_verified"
+]

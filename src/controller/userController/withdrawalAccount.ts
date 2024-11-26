@@ -3,19 +3,14 @@ import { AppError } from "../../middleware/errors";
 import { comparePassword, hashPassword } from "../../utils/password";
 import { withdrawalAccount } from "../../model/withdrawalModel";
 import { doctor } from "../../model/doctorModel";
+import { WithdrawalAccountData } from "../../types";
 
-interface WithdrawalTypes {
-    account_name: string;
-    account_number: number;
-    withdrawal_pin: string;
-    payment_method: string;
-    password: string
-}
+
 
 //Validate all withdrawal account details input
-const validateWithdrawalAccountInputs = async (body: WithdrawalTypes, next: NextFunction) => {
+const validateWithdrawalAccountInputs = async (body: WithdrawalAccountData, next: NextFunction) => {
     try {
-        if (!body.account_name || !body.payment_method || !body.account_number || !body.withdrawal_pin) {
+        if (!body.account_name || !body.bank_name || !body.account_number || !body.withdrawal_password) {
             throw new AppError("Please All fields are required", 400);
         } else if (isNaN(body.account_number)) {
             throw new AppError("Please provide a number", 400);
@@ -30,7 +25,7 @@ const validateWithdrawalAccountInputs = async (body: WithdrawalTypes, next: Next
 export const createWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const doctor_id = (req as any).user;
-        const { account_name, account_number, payment_method, withdrawal_pin } = req.body as WithdrawalTypes;
+        const { account_name, account_number, bank_name, withdrawal_password } = req.body as WithdrawalAccountData;
 
         const isValideInputs = await validateWithdrawalAccountInputs(req.body, next);
         if (!isValideInputs) return
@@ -38,17 +33,19 @@ export const createWithdrawalAccount = async (req: Request, res: Response, next:
         //check if the DOCTOR have a withdrawal account already if yes return an an error
         const findAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id } });
         if (findAccount) throw new AppError("You already have withdrawal account", 400);
+
         //check if they have already use the account number;
         const findAccountNumber = await withdrawalAccount.findOne({ where: { account_number: account_number } });
         if (findAccountNumber) throw new AppError("You can not use the same number for different accounts", 400);
+
         //save the user withdrawal account input details in to the database
         await withdrawalAccount.create(
             {
                 doctor_id,
                 account_name,
                 account_number,
-                payment_method,
-                withdrawal_pin: await hashPassword(withdrawal_pin)
+                bank_name,
+                withdrawal_pin: await hashPassword(withdrawal_password)
             },
 
         );
@@ -68,36 +65,18 @@ export const createWithdrawalAccount = async (req: Request, res: Response, next:
     }
 }
 
-//Check if the doctor has submitted all the fields to update or just update the once he submited since the updates is optional 
 
-const checkUpdatedInputs = async (body: WithdrawalTypes, next: NextFunction, doctor_id: number) => {
-    try {
-        const updatedInputs: any = {}
-        const findDoctor = await doctor.findOne({ where: { id: doctor_id } });
-        if (!findDoctor) throw new AppError("Please login to continue", 401);
-
-        //check if the doctor has submitted the password because is required
-        if (!body.password) throw new AppError("Password is required", 400);
-        const hashPassword = findDoctor.dataValues.password;
-        const isPasswordValid = await comparePassword(body.password, hashPassword);
-        if (!isPasswordValid) throw new AppError("Please provide a valid password", 400);
-        if (body.account_name) updatedInputs.account_name = body.account_name;
-        if (body.account_number) updatedInputs.account_number = body.account_number;
-        if (body.payment_method) updatedInputs.payment_method = body.payment_method;
-        return updatedInputs;
-    } catch (error) {
-        next(error);
-        return false
-    }
-}
 
 //update the withdrawal account
 export const updateWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const doctor_id = (req as any).user;
-        const dataToUpdate = await checkUpdatedInputs(req.body, next, doctor_id);
-        if (!dataToUpdate) return
-        await withdrawalAccount.update(dataToUpdate, { where: { doctor_id: doctor_id } });
+        const { bank_name, account_name, account_number } = req.body as WithdrawalAccountData
+
+        await withdrawalAccount.update(
+            { bank_name, account_name, account_number }, {
+            where: { doctor_id: doctor_id }
+        });
 
         //get the data back and send to client
         const findAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id }, attributes: { exclude: ['withdrawal_pin'] } });
@@ -120,10 +99,20 @@ export const getDoctorWithdrawalAccount = async (req: Request, res: Response, ne
         const doctor_id = (req as any).user;
 
         const doctorWithdrawalAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id }, attributes: { exclude: ['withdrawal_pin'] } });
-        if (!doctorWithdrawalAccount) throw new AppError("No account found", 404); res.status(200).json({
+        if (!doctorWithdrawalAccount) {
+            res.status(404).json({
+                status: "Error",
+                message: "Withdrawal account not found",
+                account: doctorWithdrawalAccount
+            })
+            throw new AppError("Withdrawal account not found", 404);
+        }
+
+        res.status(200).json({
             status: "success",
+            message: "Successfully retreived the withdrawal account",
             data: {
-                withdrawal_account: doctorWithdrawalAccount
+                account: doctorWithdrawalAccount
             }
         })
     } catch (error) {

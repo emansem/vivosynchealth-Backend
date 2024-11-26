@@ -50,3 +50,10 @@ export interface ResendLinkRequest {
     token?: string;
     subject: 'VERIFY_EMAIL' | 'RESET_PASSWORD';
 }
+
+export interface WithdrawalAccountData {
+    bank_name: string;
+    account_name: string;
+    account_number: number;
+    withdrawal_password: string;
+}

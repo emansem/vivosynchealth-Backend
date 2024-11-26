@@ -17,7 +17,7 @@ export const withdrawalAccount = sequelize.define("withdrawal_method", {
         type: DataTypes.STRING,
         allowNull: false
     },
-    payment_method: {
+    bank_name: {
         type: DataTypes.STRING,
         allowNull: false,
     },

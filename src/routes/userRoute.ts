@@ -1,5 +1,5 @@
 import express from "express"
-import { getAllDoctors, getDoctorById } from "../controller/userController/doctor/getDoctor";
+import { getAllDoctors, getDoctorById } from "../controller/userController/patient/getDoctor";
 import { protectedRoutes } from "../middleware/protection";
 import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, updatePlan } from "../controller/userController/doctor/subscriptionPlan";
 import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalAccount, updateWithdrawalAccount } from "../controller/userController/withdrawalAccount";
@@ -29,10 +29,11 @@ doctorRoute
     .post("/withdrawal/account/create", protectedRoutes, createWithdrawalAccount)
     .put('/withdrawal/account/update', protectedRoutes, updateWithdrawalAccount)
     .delete("/withdrawal-account/delete", protectedRoutes, deleteDoctorWithdrawalAccount)
-    .get('/all-doctors', protectedRoutes, getAllDoctors)
+
     .get('/doctor/:id', protectedRoutes, getDoctorById)
 
 
 
 patientRoute
-    .get("/doctor-plan/:doctorId", protectedRoutes, getDoctorSubscriptionPlan);
+    .get("/doctor-plan/:doctorId", protectedRoutes, getDoctorSubscriptionPlan)
+    .get('/find-doctor', protectedRoutes, getAllDoctors)

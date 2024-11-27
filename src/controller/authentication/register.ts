@@ -58,7 +58,7 @@ const saveUserData = async (body: RegisterField, password: string, next: NextFun
 
     try {
         const passwordToSave = await hashPassword(password) as string;
-        const tokenExpireTime = Date.now() + 60 * 1000;
+        const tokenExpireTime = Date.now() + 4 * 60 * 1000;
         const userData = matchUserType.create({
             name: name,
             phone_number: phone,

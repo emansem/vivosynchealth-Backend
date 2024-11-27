@@ -6,6 +6,7 @@ import { patient } from "../../model/patientsModel";
 import { doctor } from "../../model/doctorModel";
 import { getUserCurrentLocation } from "../../services/getUserLocation";
 import { generateJwt } from "../../utils/jwt";
+import { USER_TYPES } from "../../constant";
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -29,7 +30,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
         }
 
-        const userType = user.dataValues.user_type === "patient" ? patient : doctor;
+        const userType = user.dataValues.user_type === USER_TYPES.PATIENT ? patient : doctor;
         const jwtToken = generateJwt(user?.dataValues.user_id);
 
 
@@ -48,6 +49,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         // const {password, ...user} = findUser;
         res.status(200).json({
             status: "success",
+            user_type: user.dataValues.user_type,
             message: 'User successfully login',
             jwt: jwtToken
         })

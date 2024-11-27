@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 import { doctor } from "../../../model/doctorModel"
 import { AppError } from "../../../middleware/errors";
+import { SENSITIVE_USER_FIELDS } from "../../../constant";
 interface FilterTypes {
     city: string;
     country: string;
@@ -28,8 +29,8 @@ export const getAllDoctors = async (req: Request, res: Response, next: NextFunct
                 limit: limitResult,
                 attributes:
                 {
-                    exclude:
-                        ['password', "password_reset_token", "email_verify_token", "token_expires_in"]
+                    exclude: SENSITIVE_USER_FIELDS
+
                 }
             }
         );
@@ -92,7 +93,12 @@ export const getDoctorById = async (req: Request, res: Response, next: NextFunct
         if (!id) {
             throw new AppError("Invalid id, please provid a valid id", 400);
         }
-        const doctorData = await doctor.findOne({ where: { id: id }, attributes: { exclude: ['password', "password_reset_token", "email_verify_token", "token_expires_in"] } });
+        const doctorData = await doctor.findOne({
+            where: { id: id }, attributes: {
+                exclude: SENSITIVE_USER_FIELDS
+
+            }
+        });
         res.status(200).json({
             status: "Success",
             data: {

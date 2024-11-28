@@ -34,6 +34,7 @@ export type PlanFeatures = {
 export interface SubscriptionPlanDataType {
     name: string,
     amount: number,
+    doctor_id?: string,
     discount_percentage: number,
     plan_type: "basic" | "standard" | "premium"
     plan_duration: "30" | "1",

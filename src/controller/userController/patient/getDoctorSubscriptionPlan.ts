@@ -97,3 +97,30 @@ export const getAllDoctorSubscriptionPlan = async (req: Request, res: Response, 
         next(error);
     }
 };
+
+//Get  the doctor plan by id
+export const getSubscriptionPlan = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = parseInt(req.params.id);
+
+        if (!id) throw new AppError("Please provid a valid id", 400);
+        const totalPlans = await plan.count();
+
+        const planDetails = await plan.findOne({ where: { id: id } });
+
+        const planFeatures = JSON.parse(planDetails?.dataValues.plan_features);
+
+        const planDetailsFormat = {
+            ...planDetails?.dataValues, plan_features: planFeatures
+        }
+        res.status(200).json({
+            status: "success",
+            message: "Plan details retrieved successfully",
+            data: {
+                plan: planDetailsFormat
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}

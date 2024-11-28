@@ -7,6 +7,8 @@ import dotenv from "dotenv"
 import { subscription } from "../../model/subscriptionModel";
 import { generateEmailToken } from "../../helper/emailToken";
 import { paymentHistory } from "../../model/payment-historyModel";
+import { Model } from "sequelize";
+import { SubscriptionPlanDataType } from "../../types";
 dotenv.config()
 const pay = Mesomb as any
 
@@ -19,18 +21,27 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
         const planId = parseInt(req.params.planId);
         if (!number || !payment_method) throw new AppError("Please all fields are , or a valid  phone number", 400);
 
+        //Check if the patient have purchase this plan already if yes then send back error response
+        const checkPlan = await subscription.findOne({ where: { plan_id: planId } });
+        console.log("We found the plan", checkPlan)
+        if (checkPlan) throw new AppError("You have subscribed to this plan already, Please upgrade to a different plan", 400)
+
         //Find the plan in the database and collect the name of the plan and the doctor the doctor id;
 
-        const planData = await plan.findByPk(planId);
+        const planData: Model<SubscriptionPlanDataType, SubscriptionPlanDataType> | null = await plan.findByPk(planId);
         if (!planData) throw new AppError("Please provid a valid plan id", 400);
+
         //Get the doctor id and plan amount
-        const doctorId = planData.dataValues.doctor_id;
+        const doctorId = planData.dataValues.doctor_id as string
+
         //we will charge the patient later for using our services
         const planAmount = planData.dataValues.amount;
+        console.log("Plan Data", planData)
+        const totalAmount = planAmount - Number(planData.dataValues.discount_percentage * 0.1)
 
-        const payment = await makeDeposit(next, planAmount, phone_number, payment_method)
+        const payment = await makeDeposit(next, totalAmount, phone_number, payment_method)
         if (!payment) throw new AppError("Your payment has failed please try again", 400);
-        //Send a response back to the user when the subscription is successfull
+        // //Send a response back to the user when the subscription is successfull
         const subscriptionData = await createSubscription(doctorId, patient_id, planId, planAmount, next, payment_method);
         if (subscriptionData) {
             res.status(201).json({
@@ -47,7 +58,7 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
 }
 
 //Create the patient and doctor a subscription 
-const createSubscription = async (doctor_id: number, patient_id: number, plan_id: number, amount: number, next: NextFunction, payment_method: string) => {
+const createSubscription = async (doctor_id: string, patient_id: string, plan_id: number, amount: number, next: NextFunction, payment_method: string) => {
     try {
         const payId = generateEmailToken().slice(0, 10);
         console.log(payId);
@@ -63,7 +74,7 @@ const createSubscription = async (doctor_id: number, patient_id: number, plan_id
             }
         )
         if (!saveSubscription) throw new AppError("Error saving your data in the database", 400);
-        const paymentId = saveSubscription.dataValues.patient_id;
+        const paymentId = saveSubscription.dataValues.patient_id as string
         await createPaymentHistory(paymentId, patient_id, doctor_id, amount, next, payment_method)
         return saveSubscription;
     } catch (error) {
@@ -72,7 +83,7 @@ const createSubscription = async (doctor_id: number, patient_id: number, plan_id
 }
 
 //create doctor and the patient a payment history
-const createPaymentHistory = async (payment_id: string, patient_id: number, doctor_id: number, amount: number, next: NextFunction, payment_method: string) => {
+const createPaymentHistory = async (payment_id: string, patient_id: string, doctor_id: string, amount: number, next: NextFunction, payment_method: string) => {
     try {
         const savedPaymentHistory = await paymentHistory.create({
             doctor_id,

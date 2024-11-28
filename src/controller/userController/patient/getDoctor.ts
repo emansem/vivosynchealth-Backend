@@ -37,7 +37,7 @@ export const getAllDoctors = async (req: Request, res: Response, next: NextFunct
         if (!doctors || doctors.length <= 0) {
             throw new AppError('No doctors found', 400);
         }
-
+        console.log(doctors)
         res.status(200).json({
 
             totalItems: doctors.length,
@@ -88,13 +88,13 @@ const filterDoctors = (state: string, country: string, specialization: string, c
 
 //find doctors by id from the database
 export const getDoctorById = async (req: Request, res: Response, next: NextFunction) => {
-    const id = req.params.id
+    const doctorId = req.params.doctorId
     try {
-        if (!id) {
+        if (!doctorId) {
             throw new AppError("Invalid id, please provid a valid id", 400);
         }
         const doctorData = await doctor.findOne({
-            where: { id: id }, attributes: {
+            where: { user_id: doctorId }, attributes: {
                 exclude: SENSITIVE_USER_FIELDS
 
             }

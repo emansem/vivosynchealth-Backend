@@ -40,6 +40,7 @@ export const ERROR_MESSAGES = {
 
 export const SENSITIVE_USER_FIELDS = [
     'password',
+    "last_login",
     'password_reset_token',
     'email_verify_token',
     "password_updated_at",

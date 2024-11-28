@@ -3,12 +3,12 @@ import { getAllDoctors, getDoctorById } from "../controller/userController/patie
 import { protectedRoutes } from "../middleware/protection";
 import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, updatePlan } from "../controller/userController/doctor/subscriptionPlan";
 import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalAccount, updateWithdrawalAccount } from "../controller/userController/withdrawalAccount";
-import { getDoctorSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
+import { getAllDoctorSubscriptionPlan, getDoctorSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
 import { getUser } from "../controller/userController/getUser";
 import { updateOnboardData } from "../controller/userController/doctor/updateOnboardData";
 import { authoriseUserAccess } from "../middleware/authorization";
 import { USER_TYPES } from "../constant";
-import updateDoctorProfile from "../controller/userController/doctor/updateProfile";
+import updateDoctorProfile, { getDoctorData } from "../controller/userController/doctor/updateProfile";
 
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
@@ -29,11 +29,12 @@ doctorRoute
     .post("/withdrawal/account/create", protectedRoutes, createWithdrawalAccount)
     .put('/withdrawal/account/update', protectedRoutes, updateWithdrawalAccount)
     .delete("/withdrawal-account/delete", protectedRoutes, deleteDoctorWithdrawalAccount)
+    .get('/details', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorData)
 
-    .get('/doctor/:id', protectedRoutes, getDoctorById)
 
 
 
 patientRoute
-    .get("/doctor-plan/:doctorId", protectedRoutes, getDoctorSubscriptionPlan)
-    .get('/find-doctor', protectedRoutes, getAllDoctors)
+    .get("/plans/:doctorId", protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllDoctorSubscriptionPlan)
+    .get('/find-doctor', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllDoctors)
+    .get('/find-doctor/:doctorId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getDoctorById)

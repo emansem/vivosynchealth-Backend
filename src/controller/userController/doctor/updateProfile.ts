@@ -1,7 +1,34 @@
 import { NextFunction, Request, Response } from "express";
 import { doctor } from "../../../model/doctorModel";
 import { SENSITIVE_USER_FIELDS } from "../../../constant";
+import { AppError } from "../../../middleware/errors";
 
+
+export const getDoctorData = async (req: Request, res: Response, next: NextFunction) => {
+    const doctor_id = (req as any).user;
+    try {
+        if (!doctor_id) {
+            throw new AppError("Invalid id, please provid a valid id", 400);
+        }
+        const doctorData = await doctor.findOne({
+            where: { user_id: doctor_id }, attributes: {
+                exclude: SENSITIVE_USER_FIELDS
+
+            }
+        });
+        console.log(doctorData)
+        res.status(200).json({
+            status: "Success",
+            message: "Successfully retreived doctor details",
+            data: {
+                doctor: doctorData,
+
+            }
+        })
+    } catch (error) {
+        next(error)
+    }
+}
 
 export interface UserDataTypes {
     // Personal & Professional Info

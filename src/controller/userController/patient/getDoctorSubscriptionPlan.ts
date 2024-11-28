@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { AppError } from "../../../middleware/errors";
 import { subscription } from "../../../model/subscriptionModel";
+import { plan } from "../../../model/subscriptionPlan";
 
 
 export const getDoctorSubscriptionPlan = async (req: Request, res: Response, next: NextFunction) => {
@@ -36,3 +37,63 @@ export const getDoctorSubscriptionPlan = async (req: Request, res: Response, nex
         next(error);
     }
 }
+
+export const getAllDoctorSubscriptionPlan = async (req: Request, res: Response, next: NextFunction) => {
+    const doctor_id = req.params.doctorId;
+    console.log("Doctor id extracted from the param", doctor_id);
+
+    try {
+        const planDetails = await plan.findAll({
+            where: { doctor_id }
+        });
+
+        console.log("Raw plan details:", JSON.stringify(planDetails, null, 2));
+
+        if (!planDetails || planDetails.length === 0) {
+            res.status(404).json({
+                status: "error",
+                message: "No plans found for this doctor",
+                data: {
+                    plans: []
+                }
+            });
+        }
+
+        // Safely format each plan
+        const formatPlan = planDetails.map(planDetail => {
+            // Extract the raw object
+            const rawPlan = planDetail.toJSON();
+
+            try {
+                // Parse plan_features if it exists and is a string
+                const features = typeof rawPlan.plan_features === 'string'
+                    ? JSON.parse(rawPlan.plan_features)
+                    : rawPlan.plan_features || [];
+
+                return {
+                    ...rawPlan,
+                    plan_features: features
+                };
+            } catch (parseError) {
+                console.error("Error parsing plan features:", parseError);
+                return {
+                    ...rawPlan,
+                    plan_features: []
+                };
+            }
+        });
+
+
+        res.status(200).json({
+            result: formatPlan.length,
+            status: "success",
+            message: "Plan details successfully retrieved",
+            data: {
+                plans: formatPlan
+            }
+        });
+    } catch (error) {
+        console.error("Error in getAllDoctorPlans:", error);
+        next(error);
+    }
+};

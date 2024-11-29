@@ -9,6 +9,7 @@ import { updateOnboardData } from "../controller/userController/doctor/updateOnb
 import { authoriseUserAccess } from "../middleware/authorization";
 import { USER_TYPES } from "../constant";
 import updateDoctorProfile, { getDoctorData } from "../controller/userController/doctor/updateProfile";
+import getPatientSubscriptionData from "../controller/userController/subscription/getSubscriptionData";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -46,6 +47,7 @@ patientRoute
     .get("/doctor/plans/:doctorId", protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllDoctorSubscriptionPlan)
     .get('/subscription/plan/:id', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getSubscriptionPlan)
     .get('/find-doctor', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllDoctors)
+    .get('/subscription/patient', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getPatientSubscriptionData)
     .get('/find-doctor/:doctorId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getDoctorById);
 
 // Note: There's a duplicate route in doctorRoute:

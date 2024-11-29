@@ -25,7 +25,21 @@ export const subscription = sequelize.define("subscription", {
     },
     subscription_status: {
         type: DataTypes.STRING
-    }
+    },
+    auto_renew: {
+        type: DataTypes.BOOLEAN
+    },
+    doctor_name: {
+        type: DataTypes.STRING
+    },
+    amount: {
+        type: DataTypes.BIGINT
+    },
+    plan_type: {
+        type: DataTypes.STRING
+    },
+
+
 
 
 }, {

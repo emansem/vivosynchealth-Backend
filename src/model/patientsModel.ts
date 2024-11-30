@@ -12,6 +12,11 @@ export const patient = sequelize.define('patient', {
         allowNull: false,
 
     },
+    balance: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+    },
 
     email: {
         type: DataTypes.STRING,

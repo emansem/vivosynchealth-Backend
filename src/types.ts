@@ -58,3 +58,17 @@ export interface WithdrawalAccountData {
     account_number: number;
     withdrawal_password: string;
 }
+
+export interface SubscriptionData {
+    id: number;
+    doctor_name?: string;
+    doctor_id: string;
+    plan_type: "basic" | "premium" | "enterprise";
+    created_at: string;
+    expire_date: string | number;
+    plan_id?: number,
+    subscription_status: "active" | "expired" | "cancelled";
+    amount: number;
+
+    auto_renew?: boolean;
+}

@@ -5,33 +5,32 @@ import { subscription } from "../../model/subscriptionModel";
 import { generateEmailToken } from "../../helper/emailToken";
 import { paymentHistory } from "../../model/payment-historyModel";
 import { Model } from "sequelize";
-import { SubscriptionPlanDataType } from "../../types";
+import { SubscriptionData, SubscriptionPlanDataType } from "../../types";
 import { doctor } from "../../model/doctorModel";
 import { makeDeposit } from "../../utils/localPayment";
+import makePaymentWithBalance from "../../utils/payWithBalance";
 
 
 
 // Main function to handle payment collection
-export const collectLocalPayment = async (req: Request, res: Response, next: NextFunction) => {
+export const payWithAccountBalance = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const patient_id = (req as any).user;
-        const { phone_number, payment_method } = req.body;
-        const number = parseInt(phone_number)
         const planId = parseInt(req.params.planId);
-
-        // Check if required fields are present
-        if (!number || !payment_method) throw new AppError("Please all fields are required, or provide a valid phone number", 400);
+        const { payment_method } = req.body
 
         // Get plan details from database
         const planData: Model<SubscriptionPlanDataType, SubscriptionPlanDataType> | null = await plan.findByPk(planId);
         if (!planData) throw new AppError("Please provide a valid plan ID", 400);
 
         const doctorId = planData.dataValues.doctor_id as string
+
         // Calculate final amount after discount
         // const doctorId = planData.dataValues.doctor_id as string
         const planAmount = planData.dataValues.amount;
         const plan_type = planData.dataValues.plan_type
         const totalAmount = planAmount - Number(planData.dataValues.discount_percentage * 0.1)
+
         //Find the doctor and save his name in the subscription table
         const doctorDetails = await doctor.findOne({ where: { user_id: doctorId } })
 
@@ -41,46 +40,73 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
         });
 
         if (existingSubscription) {
-            const { plan_id: existingPlanId, expire_date, id } = existingSubscription.dataValues;
+            // Destructure relevant data from existing subscription
+            const {
+                plan_id: existingPlanId,
+                expire_date,
+                id,
+                subscription_status
+            } = existingSubscription.dataValues as SubscriptionData;
+
+            // Get current date for comparison
             const currentDate = new Date();
+            // Check if subscription is expired by comparing dates
             const isExpired = new Date(expire_date) <= currentDate;
 
-            // Attempting to subscribe to the same plan
-            if (existingPlanId === planId && !isExpired) {
+            // Case 1: User tries to subscribe to the same plan they already have
+            // Conditions: Same plan ID + Plan not expired + Subscription not cancelled
+            if (existingPlanId === planId && !isExpired && subscription_status !== "cancelled") {
                 throw new AppError(
                     "You're already subscribed to this plan. Please choose a different plan to upgrade.",
                     400
                 );
             }
 
-            // Has active subscription but trying different plan
-            if (!isExpired) {
+            // Case 2: User tries to subscribe to a different plan while current one is active
+            // Conditions: Plan not expired + Subscription not cancelled
+            if (!isExpired && subscription_status !== "cancelled") {
                 throw new AppError(
-                    `Your current plan is active until ${new Date(expire_date).toLocaleDateString()}. 
-                   Please wait for it to expire before upgrading.`,
+                    `Your current plan is active until ${new Date(expire_date).toLocaleDateString()}.
+       Please wait for it to expire before upgrading.`,
                     400
                 );
             }
-            const payment = await makeDeposit(next, totalAmount, phone_number, payment_method)
-            if (!payment) throw new AppError("Payment processing failed. Please try again", 400);
 
-            const upgradedData = await upgradeSubscription(id, planId, totalAmount, next, payment_method, plan_type, patient_id, doctorId);
+            // Attempt to process payment using user's balance
+            const makePayment = await makePaymentWithBalance(next, totalAmount, patient_id);
+            if (!makePayment) throw new AppError("Insufficient balance, Please refill your account", 400);
+
+            // If payment successful, upgrade the subscription
+            const upgradedData = await upgradeSubscription(
+                id,
+                planId,
+                totalAmount,
+                next,
+                payment_method,
+                plan_type,
+                patient_id,
+                doctorId
+            );
+
+            // Handle failed upgrade
             if (!upgradedData) {
-                throw new AppError("Failed to upgrade subscription", 400)
+                throw new AppError("Failed to upgrade subscription", 400);
             }
+
+            // Return success response with upgraded subscription data
             res.status(200).json({
                 status: "success",
-                // message: "Payment was",
+                message: "Payment successful. Subscription activated",
                 data: {
                     subscription: upgradedData
                 }
-            })
-            return
+            });
+            return;
         }
 
         // Process the payment
-        const payment = await makeDeposit(next, totalAmount, phone_number, payment_method)
-        if (!payment) throw new AppError("Payment processing failed. Please try again", 400);
+        const makePayment = await makePaymentWithBalance(next, totalAmount, patient_id)
+        if (!makePayment) throw new AppError("Insufficient balance, Please refill your account", 400)
 
         // Create subscription if payment successful
         const subscriptionData = await createSubscription(doctorId, patient_id, planId, planAmount, next, payment_method, plan_type, doctorDetails?.dataValues.name);

@@ -9,7 +9,7 @@ import { updateOnboardData } from "../controller/userController/doctor/updateOnb
 import { authoriseUserAccess } from "../middleware/authorization";
 import { USER_TYPES } from "../constant";
 import updateDoctorProfile, { getDoctorData } from "../controller/userController/doctor/updateProfile";
-import getPatientSubscriptionData from "../controller/userController/subscription/getSubscriptionData";
+import { getPatientSubscriptionData, getSubscriptionWithPlans, updateSubscriptionStatus } from "../controller/userController/subscription/subscription";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -48,7 +48,9 @@ patientRoute
     .get('/subscription/plan/:id', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getSubscriptionPlan)
     .get('/find-doctor', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllDoctors)
     .get('/subscription/patient', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getPatientSubscriptionData)
-    .get('/find-doctor/:doctorId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getDoctorById);
+    .get('/find-doctor/:doctorId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getDoctorById)
+    .get('/subscription/current/patient/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getSubscriptionWithPlans)
+    .put('/subscription/current/patient/update/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), updateSubscriptionStatus)
 
 // Note: There's a duplicate route in doctorRoute:
 // .get('/plans', ...) appears twice with the same controller (getAllDoctorPlans)

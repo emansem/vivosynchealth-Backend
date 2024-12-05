@@ -6,7 +6,7 @@ export const message = sequelize.define('message', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
-    reciever_id: {
+    receiver_id: {
         type: DataTypes.TEXT,
         allowNull: false,
     },
@@ -24,7 +24,7 @@ export const message = sequelize.define('message', {
     },
     message_time_stamp: {
         type: DataTypes.DATE,
-        allowNull: false,
+
     },
 
 }, {

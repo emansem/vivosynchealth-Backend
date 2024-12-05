@@ -63,6 +63,7 @@ export interface SubscriptionData {
     id: number;
     doctor_name?: string;
     doctor_id: string;
+    patient_id?: string,
     plan_type: "basic" | "premium" | "enterprise";
     created_at: string;
     expire_date: string | number;
@@ -71,4 +72,13 @@ export interface SubscriptionData {
     amount: number;
 
     auto_renew?: boolean;
+}
+
+export interface MessageType {
+    id: number,
+    receiver_id: string,
+    sender: string,
+    content: string,
+    status: string
+    chatRoomId: string,
 }

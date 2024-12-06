@@ -34,20 +34,45 @@ export const io = new Server(httpServer, {
 
 })
 
-// 3. Socket server: Handling room joining
+// Socket server: Handling room joining
 io.on('connection', (socket) => {
+    // Keep track of which room this socket is in
+    let currentRoom: string | null = null;
+
     socket.on('join_room', (roomId) => {
-        // Add this socket to the room
+        // Store the room ID for later use
+        currentRoom = roomId;
+
+        // First join the room
         socket.join(roomId);
         console.log(`Socket ${socket.id} joined room ${roomId}`);
-        // Output: "Socket abc123 joined room 6789"
 
-        // Optional: Notify room that someone joined
+        // Emit to everyone in the room EXCEPT the sender
         socket.to(roomId).emit('user_joined', {
             message: 'New user joined the chat'
         });
+
+        // Emit online status to EVERYONE in the room INCLUDING the sender
+        io.in(roomId).emit('status_change', {
+            userId: socket.id,
+            status: 'online'
+        });
+    });
+
+    socket.on('disconnect', () => {
+        console.log(`Socket ${socket.id} disconnected`);
+
+        // Only emit offline status if the socket was in a room
+        if (currentRoom) {
+            io.in(currentRoom).emit('status_change', {
+                userId: socket.id,
+                status: 'offline'
+            });
+        }
     });
 });
+
+
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));

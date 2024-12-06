@@ -40,7 +40,7 @@ export const protectedRoutes = async (req: Request, res: Response, next: NextFun
         const user = await findUser(id, "user_id", next, "User not found, please create an account", 404);
 
         if (!user) throw new AppError("User not found", 404)
-        if (!userLocation) throw new AppError("Error fetching user location", 400)
+        // if (!userLocation) throw new AppError("Error fetching user location", 400)
         const { user_type, isProfileCompleted } = user.dataValues
         // if (user_type === USER_TYPES.DOCTOR && !isProfileCompleted) {
         //     res.status(403).json({

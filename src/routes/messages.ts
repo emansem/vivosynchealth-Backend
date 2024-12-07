@@ -4,7 +4,7 @@ import { protectedRoutes } from "../middleware/protection";
 import { createNewAssistantMessage } from "../controller/messages/aiAssistantMessage";
 import { getActiveSubscription } from "../controller/messages/getActiveSubscription";
 import { chatRoomController, getAllUserMessages } from "../controller/messages/chatRoomController";
-import { messageController } from "../controller/messages/message";
+import { getLastSentMessage, messageController } from "../controller/messages/message";
 
 export const messageRoutes = express.Router();
 messageRoutes
@@ -13,3 +13,4 @@ messageRoutes
     .post("/chat-room/find", protectedRoutes, chatRoomController)
     .post('/send-message', protectedRoutes, messageController)
     .get("/all-messages/:chatRoomId", protectedRoutes, getAllUserMessages)
+    .get("/chat-room/last-sent", protectedRoutes, getLastSentMessage);

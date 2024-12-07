@@ -22,7 +22,7 @@ export const message = sequelize.define('message', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    message_time_stamp: {
+    timestamp: {
         type: DataTypes.DATE,
 
     },

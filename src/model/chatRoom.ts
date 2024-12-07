@@ -9,6 +9,12 @@ export const chatRoom = sequelize.define('chat_room', {
     receiver_id: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    content: {
+        type: DataTypes.STRING,
+    },
+    last_senderId: {
+        type: DataTypes.STRING,
     }
 }, {
     tableName: "chat_room",

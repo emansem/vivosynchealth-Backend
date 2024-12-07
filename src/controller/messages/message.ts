@@ -3,6 +3,8 @@ import { MessageType } from "../../types";
 import { AppError } from "../../middleware/errors";
 import { message } from "../../model/messageModel";
 import { io } from "../..";
+import { chatRoom } from "../../model/chatRoom";
+import { Op, where } from "sequelize";
 
 export const messageController = async (req: Request, res: Response, next: NextFunction) => {
     console.log('1. Message controller started');
@@ -22,6 +24,8 @@ export const messageController = async (req: Request, res: Response, next: NextF
             receiver_id,
             content,
             status: "sent",
+            timestamp: new Date()
+
         });
         console.log('3. Message saved to database:', messageData);
 
@@ -32,9 +36,17 @@ export const messageController = async (req: Request, res: Response, next: NextF
             receiver_id,
             sender_id: user_id,
             chatRoomId,
-            timestamp: messageData.dataValues.created_at
+            timestamp: messageData.dataValues.timestamp
 
         });
+        io.to(chatRoomId).emit('last_message', {
+            content,
+            sender_id: user_id,
+            receiver_id,
+
+
+        });
+        await saveLastSendMessage(chatRoomId, content, user_id, next)
         console.log('5. Emit completed');
 
         res.status(201).json({
@@ -44,6 +56,66 @@ export const messageController = async (req: Request, res: Response, next: NextF
 
     } catch (error) {
         console.error('Error in message controller:', error);
+        next(error);
+    }
+};
+
+const saveLastSendMessage = async (chatRoomId: string, content: string, last_senderId: string, next: NextFunction) => {
+    try {
+        const saveMessage = await chatRoom.update(
+            {
+                content,
+                last_senderId,
+            },
+            {
+                where:
+                    { id: chatRoomId }
+            }
+        )
+    } catch (error) {
+        next(error)
+    }
+
+}
+
+export const getLastSentMessage = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user_id = (req as any).user;
+
+        // Find messages where the user is either sender or receiver
+        const lastSendMessage = await chatRoom.findAll({
+            where: {
+                [Op.or]: [
+                    { last_senderId: user_id },
+                    { receiver_id: user_id }
+                ]
+            },
+            order: [['created_at', 'DESC']], // Get most recent messages first
+
+        });
+
+        console.log("Last sent message ", lastSendMessage)
+
+        if (!lastSendMessage || lastSendMessage.length === 0) {
+            res.status(200).json({  // Changed to 200 since empty array is valid
+                status: "success",
+                message: "No messages found",
+                data: {
+                    messages: []
+                }
+            });
+            return
+        }
+
+        res.status(200).json({
+            status: 'success',
+            message: "Successfully retrieved the last messages",
+            data: {
+                messages: lastSendMessage
+            }
+
+        });
+    } catch (error) {
         next(error);
     }
 };

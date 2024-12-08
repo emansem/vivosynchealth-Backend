@@ -10,6 +10,8 @@ import { authoriseUserAccess } from "../middleware/authorization";
 import { USER_TYPES } from "../constant";
 import updateDoctorProfile, { getDoctorData } from "../controller/userController/doctor/updateProfile";
 import { getPatientSubscriptionData, getSubscriptionWithPlans, updateSubscriptionStatus } from "../controller/userController/subscription/subscription";
+import { getAllDoctorDetails } from "../controller/userController/doctor/getDoctorDetails";
+import { getAllDoctorSubscriptionData } from "../controller/userController/doctor/getAllDoctorSubscription";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -26,6 +28,8 @@ doctorRoute
     .get('/plans', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorPlans) // Note: Duplicate route
     .get("/plan/:id", protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorPlan)
     .get('/details', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorData)
+    .get('/details/all', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorDetails)
+    .get('/all/subscription/details', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorSubscriptionData)
 
     // POST Routes - Create New Resources
     .post('/create-plan', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), createAPlan)

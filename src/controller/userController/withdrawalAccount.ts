@@ -24,14 +24,14 @@ const validateWithdrawalAccountInputs = async (body: WithdrawalAccountData, next
 }
 export const createWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const doctor_id = (req as any).user;
+        const user_id = (req as any).user;
         const { account_name, account_number, bank_name, withdrawal_password } = req.body as WithdrawalAccountData;
 
         const isValideInputs = await validateWithdrawalAccountInputs(req.body, next);
         if (!isValideInputs) return
 
         //check if the DOCTOR have a withdrawal account already if yes return an an error
-        const findAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id } });
+        const findAccount = await withdrawalAccount.findOne({ where: { user_id } });
         if (findAccount) throw new AppError("You already have withdrawal account", 400);
 
         //check if they have already use the account number;
@@ -41,7 +41,7 @@ export const createWithdrawalAccount = async (req: Request, res: Response, next:
         //save the user withdrawal account input details in to the database
         await withdrawalAccount.create(
             {
-                doctor_id,
+                user_id,
                 account_name,
                 account_number,
                 bank_name,
@@ -52,7 +52,7 @@ export const createWithdrawalAccount = async (req: Request, res: Response, next:
 
 
         // find the account send the response back to the client when the withdrawal account is created
-        const doctorWithdrawalAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id }, attributes: { exclude: ['withdrawal_pin'] } });
+        const doctorWithdrawalAccount = await withdrawalAccount.findOne({ where: { user_id }, attributes: { exclude: ['withdrawal_pin'] } });
         res.status(201).json({
             status: "success",
             message: "Withdrawal account successfully created",
@@ -70,16 +70,16 @@ export const createWithdrawalAccount = async (req: Request, res: Response, next:
 //update the withdrawal account
 export const updateWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const doctor_id = (req as any).user;
+        const user_id = (req as any).user;
         const { bank_name, account_name, account_number } = req.body as WithdrawalAccountData
 
         await withdrawalAccount.update(
             { bank_name, account_name, account_number }, {
-            where: { doctor_id: doctor_id }
+            where: { user_id }
         });
 
         //get the data back and send to client
-        const findAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id }, attributes: { exclude: ['withdrawal_pin'] } });
+        const findAccount = await withdrawalAccount.findOne({ where: { user_id }, attributes: { exclude: ['withdrawal_pin'] } });
         if (!findAccount) throw new AppError("No withdrawal account found", 404);
         res.status(200).json({
             status: "success",
@@ -96,12 +96,12 @@ export const updateWithdrawalAccount = async (req: Request, res: Response, next:
 //Get the  doctor withdrawal account
 export const getDoctorWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const doctor_id = (req as any).user;
+        const user_id = (req as any).user;
 
-        const doctorWithdrawalAccount = await withdrawalAccount.findOne({ where: { doctor_id: doctor_id }, attributes: { exclude: ['withdrawal_pin'] } });
+        const doctorWithdrawalAccount = await withdrawalAccount.findOne({ where: { user_id }, attributes: { exclude: ['withdrawal_pin'] } });
         if (!doctorWithdrawalAccount) {
-            res.status(404).json({
-                status: "Error",
+            res.status(200).json({
+                status: "success",
                 message: "Withdrawal account not found",
                 account: doctorWithdrawalAccount
             })
@@ -122,9 +122,9 @@ export const getDoctorWithdrawalAccount = async (req: Request, res: Response, ne
 
 export const deleteDoctorWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const doctor_id = (req as any).user;
+        const user_id = (req as any).user;
 
-        const doctorWithdrawalAccount = await withdrawalAccount.destroy({ where: { doctor_id: doctor_id } });
+        const doctorWithdrawalAccount = await withdrawalAccount.destroy({ where: { user_id } });
         if (!doctorWithdrawalAccount) throw new AppError("No account found", 404); res.status(200).json({
             status: "success",
             message: "Withdrawal account successfully deleted"

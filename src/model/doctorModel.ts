@@ -113,6 +113,10 @@ export const doctor = sequelize.define('doctor', {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    total_balance: {
+        type: DataTypes.BIGINT
+
+    },
     last_login: {
         type: DataTypes.BIGINT
     },

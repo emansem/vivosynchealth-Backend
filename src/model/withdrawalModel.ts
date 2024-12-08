@@ -2,7 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database/sequelize";
 
 export const withdrawalAccount = sequelize.define("withdrawal_method", {
-    doctor_id: {
+    user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         unique: true

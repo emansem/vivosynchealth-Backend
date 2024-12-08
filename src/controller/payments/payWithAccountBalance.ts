@@ -7,7 +7,6 @@ import { paymentHistory } from "../../model/payment-historyModel";
 import { Model } from "sequelize";
 import { SubscriptionData, SubscriptionPlanDataType } from "../../types";
 import { doctor } from "../../model/doctorModel";
-import { makeDeposit } from "../../utils/localPayment";
 import makePaymentWithBalance from "../../utils/payWithBalance";
 
 
@@ -146,6 +145,8 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
 
         const paymentId = saveSubscription.dataValues.patient_id as string
         await createPaymentHistory(paymentId, patient_id, doctor_id, amount, next, payment_method)
+        await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
+
         return saveSubscription;
     } catch (error) {
         next(error);
@@ -186,6 +187,8 @@ const upgradeSubscription = async (subscriptionId: number, plan_id: number, amou
         const upgradedData = await subscription.findByPk(subscriptionId);
 
         await createPaymentHistory(payId, patient_id, doctor_id, amount, next, payment_method)
+        await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
+
         return upgradedData;
     } catch (error) {
         next(error);

@@ -12,6 +12,7 @@ import updateDoctorProfile, { getDoctorData } from "../controller/userController
 import { getPatientSubscriptionData, getSubscriptionWithPlans, updateSubscriptionStatus } from "../controller/userController/subscription/subscription";
 import { getAllDoctorDetails } from "../controller/userController/doctor/getDoctorDetails";
 import { getAllDoctorSubscriptionData } from "../controller/userController/doctor/getAllDoctorSubscription";
+import { getAllTransactions } from "../controller/userController/transaction/getTransactions";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -19,7 +20,8 @@ export const userRoute = express.Router();
 // User Routes
 userRoute
     // GET - Fetch user details
-    .get("/user", protectedRoutes, getUser);
+    .get("/user", protectedRoutes, getUser)
+    .get("/transactions/all", protectedRoutes, getAllTransactions)
 
 // Doctor Routes
 doctorRoute

@@ -6,6 +6,7 @@ import { makeDeposit } from "../../utils/localPayment";
 import { deposit } from "../../model/deposit";
 import { patient } from "../../model/patientsModel";
 import crypto from "crypto"
+import { createNewTransaction } from "../userController/transaction/createNewTransaction";
 dotenv.config()
 const pay = Mesomb as any
 
@@ -39,7 +40,7 @@ export const addAccountBalance = async (req: Request, res: Response, next: NextF
                 payment: savePaymentDetails
             }
         })
-
+        await createNewTransaction(next, paymentAmount, patient_id, "deposit")
 
     } catch (error) {
         next(error)

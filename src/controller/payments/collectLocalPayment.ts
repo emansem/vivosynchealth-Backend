@@ -8,6 +8,7 @@ import { Model } from "sequelize";
 import { SubscriptionPlanDataType } from "../../types";
 import { doctor } from "../../model/doctorModel";
 import { makeDeposit } from "../../utils/localPayment";
+import { createNewTransaction } from "../userController/transaction/createNewTransaction";
 
 
 
@@ -65,6 +66,7 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
             if (!payment) throw new AppError("Payment processing failed. Please try again", 400);
 
             const upgradedData = await upgradeSubscription(id, planId, totalAmount, next, payment_method, plan_type, patient_id, doctorId);
+
             if (!upgradedData) {
                 throw new AppError("Failed to upgrade subscription", 400)
             }
@@ -80,6 +82,8 @@ export const collectLocalPayment = async (req: Request, res: Response, next: Nex
 
         // Process the payment
         const payment = await makeDeposit(next, totalAmount, phone_number, payment_method)
+
+
         if (!payment) throw new AppError("Payment processing failed. Please try again", 400);
 
         // Create subscription if payment successful
@@ -119,28 +123,13 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
         if (!saveSubscription) throw new AppError("Failed to save subscription data", 400);
 
         const paymentId = saveSubscription.dataValues.patient_id as string
-        await createPaymentHistory(paymentId, patient_id, doctor_id, amount, next, payment_method)
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
+        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+
 
         return saveSubscription;
     } catch (error) {
         next(error);
-    }
-}
-
-// Save payment history record
-const createPaymentHistory = async (payment_id: string, patient_id: string, doctor_id: string, amount: number, next: NextFunction, payment_method: string) => {
-    try {
-        const savedPaymentHistory = await paymentHistory.create({
-            doctor_id,
-            patient_id,
-            amount,
-            payment_id,
-            payment_method
-        })
-        if (!savedPaymentHistory) throw new AppError("Failed to save payment history", 400);
-    } catch (error) {
-        next(error)
     }
 }
 
@@ -161,8 +150,9 @@ const upgradeSubscription = async (subscriptionId: number, plan_id: number, amou
 
         const upgradedData = await subscription.findByPk(subscriptionId);
 
-        await createPaymentHistory(payId, patient_id, doctor_id, amount, next, payment_method)
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
+        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+
         return upgradedData;
     } catch (error) {
         next(error);

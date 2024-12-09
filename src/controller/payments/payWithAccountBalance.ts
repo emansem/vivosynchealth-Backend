@@ -8,6 +8,7 @@ import { Model } from "sequelize";
 import { SubscriptionData, SubscriptionPlanDataType } from "../../types";
 import { doctor } from "../../model/doctorModel";
 import makePaymentWithBalance from "../../utils/payWithBalance";
+import { createNewTransaction } from "../userController/transaction/createNewTransaction";
 
 
 
@@ -144,7 +145,7 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
         if (!saveSubscription) throw new AppError("Failed to save subscription data", 400);
 
         const paymentId = saveSubscription.dataValues.patient_id as string
-        await createPaymentHistory(paymentId, patient_id, doctor_id, amount, next, payment_method)
+        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
 
         return saveSubscription;
@@ -152,23 +153,6 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
         next(error);
     }
 }
-
-// Save payment history record
-const createPaymentHistory = async (payment_id: string, patient_id: string, doctor_id: string, amount: number, next: NextFunction, payment_method: string) => {
-    try {
-        const savedPaymentHistory = await paymentHistory.create({
-            doctor_id,
-            patient_id,
-            amount,
-            payment_id,
-            payment_method
-        })
-        if (!savedPaymentHistory) throw new AppError("Failed to save payment history", 400);
-    } catch (error) {
-        next(error)
-    }
-}
-
 
 
 // Create new subscription in database
@@ -186,7 +170,7 @@ const upgradeSubscription = async (subscriptionId: number, plan_id: number, amou
 
         const upgradedData = await subscription.findByPk(subscriptionId);
 
-        await createPaymentHistory(payId, patient_id, doctor_id, amount, next, payment_method)
+        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
 
         return upgradedData;

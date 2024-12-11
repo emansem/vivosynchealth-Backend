@@ -4,6 +4,9 @@ import { withdrawalAccount } from "../../../model/withdrawalModel";
 import findUser from "../../../helper/findUser";
 import { comparePassword } from "../../../utils/password";
 import { doctor } from "../../../model/doctorModel";
+import { withdrawal } from "../../../model/withdrawal";
+import crypto from 'crypto'
+
 
 // Handler for processing withdrawal requests from doctors
 export const requestWithdrawal = async (req: Request, res: Response, next: NextFunction) => {
@@ -52,10 +55,24 @@ export const requestWithdrawal = async (req: Request, res: Response, next: NextF
             where: { user_id: doctor_id }
         })
 
+        //generate a unique transaction id
+        const transactionId = 'TX-' + crypto.randomUUID().slice(0, 15)
+
+        //Save the details into withdrawal tabel in the database
+        const withdrawalDetails = await withdrawal.create({
+            doctor_id,
+            amount,
+            transaction_id: transactionId,
+            status: "pending"
+        })
+
         // Send success response
         res.status(201).json({
             status: "success",
-            message: "You have successfully requested for a withdrawal"
+            message: "You have successfully requested for a withdrawal",
+            data: {
+                details: withdrawalDetails
+            }
         })
 
     } catch (error) {

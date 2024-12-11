@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { AppError } from "../../middleware/errors";
-import { comparePassword, hashPassword } from "../../utils/password";
-import { withdrawalAccount } from "../../model/withdrawalModel";
-import { doctor } from "../../model/doctorModel";
-import { WithdrawalAccountData } from "../../types";
+import { AppError } from "../../../middleware/errors";
+import { withdrawalAccount } from "../../../model/withdrawalModel";
+import { WithdrawalAccountData } from "../../../types";
+import { hashPassword } from "../../../utils/password";
+import { doctor } from "../../../model/doctorModel";
+import { withdrawal } from "../../../model/withdrawal";
 
 
 
@@ -94,7 +95,7 @@ export const updateWithdrawalAccount = async (req: Request, res: Response, next:
 }
 
 //Get the  doctor withdrawal account
-export const getDoctorWithdrawalAccount = async (req: Request, res: Response, next: NextFunction) => {
+export const getDoctorWithdrawalDetailsAndAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user_id = (req as any).user;
 
@@ -107,12 +108,14 @@ export const getDoctorWithdrawalAccount = async (req: Request, res: Response, ne
             })
             throw new AppError("Withdrawal account not found", 404);
         }
+        const withdrawal_details = await getDoctorWithdrawalDetailsAndBalance(user_id, next)
 
         res.status(200).json({
             status: "success",
             message: "Successfully retreived the withdrawal account",
             data: {
-                account: doctorWithdrawalAccount
+                account: doctorWithdrawalAccount,
+                withdrawal_details
             }
         })
     } catch (error) {
@@ -129,6 +132,37 @@ export const deleteDoctorWithdrawalAccount = async (req: Request, res: Response,
             status: "success",
             message: "Withdrawal account successfully deleted"
         })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getDoctorWithdrawalDetailsAndBalance = async (doctor_id: string, next: NextFunction) => {
+    try {
+        const WITHDRAWAL_STATUS = {
+            SUCCESS: 'success',
+            REJECTED: "rejected",
+            PENDING: "pending"
+
+        }
+        const doctorDetails = await doctor.findOne({ where: { user_id: doctor_id } })
+        const withdrawalDetails = await withdrawal.findAll({ where: { doctor_id } })
+
+        const successWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.SUCCESS);
+        const rejectedWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.REJECTED);
+        const pendingWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.PENDING);
+
+        const withdrawalData = {
+            successWithdrawal,
+            rejectedWithdrawal,
+            pendingWithdrawal,
+            withdrawal_data: withdrawalDetails,
+            totalBalance: doctorDetails?.dataValues.total_balance
+        }
+
+        return withdrawalData
+
+
     } catch (error) {
         next(error)
     }

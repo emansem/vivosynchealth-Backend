@@ -2,8 +2,7 @@ import express from "express"
 import { getAllDoctors, getDoctorById } from "../controller/userController/patient/getDoctor";
 import { protectedRoutes } from "../middleware/protection";
 import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, updatePlan } from "../controller/userController/doctor/subscriptionPlan";
-import { createWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalAccount, updateWithdrawalAccount } from "../controller/userController/withdrawalAccount";
-import { getAllDoctorSubscriptionPlan, getDoctorSubscriptionPlan, getSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
+import { getAllDoctorSubscriptionPlan, getSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
 import { getUser } from "../controller/userController/getUser";
 import { updateOnboardData } from "../controller/userController/doctor/updateOnboardData";
 import { authoriseUserAccess } from "../middleware/authorization";
@@ -13,6 +12,8 @@ import { getPatientSubscriptionData, getSubscriptionWithPlans, updateSubscriptio
 import { getAllDoctorDetails } from "../controller/userController/doctor/getDoctorDetails";
 import { getAllDoctorSubscriptionData } from "../controller/userController/doctor/getAllDoctorSubscription";
 import { getAllTransactions } from "../controller/userController/transaction/getTransactions";
+import { createWithdrawalAccount, updateWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalDetailsAndAccount } from "../controller/userController/withdrawal/withdrawalAccount";
+import { requestWithdrawal } from "../controller/userController/withdrawal/requestWithdrawal";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -22,11 +23,12 @@ userRoute
     // GET - Fetch user details
     .get("/user", protectedRoutes, getUser)
     .get("/transactions/all", protectedRoutes, getAllTransactions)
+    .post('/withdrawal/request', protectedRoutes, requestWithdrawal)
 
 // Doctor Routes
 doctorRoute
     // GET Routes - Data Retrieval
-    .get("/withdrawal/account", protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorWithdrawalAccount)
+    .get("/withdrawal/account", protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorWithdrawalDetailsAndAccount)
     .get('/plans', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getAllDoctorPlans) // Note: Duplicate route
     .get("/plan/:id", protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorPlan)
     .get('/details', protectedRoutes, authoriseUserAccess(USER_TYPES.DOCTOR), getDoctorData)

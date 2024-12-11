@@ -148,9 +148,25 @@ const getDoctorWithdrawalDetailsAndBalance = async (doctor_id: string, next: Nex
         const doctorDetails = await doctor.findOne({ where: { user_id: doctor_id } })
         const withdrawalDetails = await withdrawal.findAll({ where: { doctor_id } })
 
-        const successWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.SUCCESS);
-        const rejectedWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.REJECTED);
-        const pendingWithdrawal = withdrawalDetails.filter(withdrawal => withdrawal.dataValues.status === WITHDRAWAL_STATUS.PENDING);
+        const successWithdrawal = withdrawalDetails.reduce((total, withdrawal) => {
+            if (withdrawal.dataValues.status === WITHDRAWAL_STATUS.SUCCESS) {
+                return total + withdrawal.dataValues.amount;
+            }
+        }, 0)
+
+        const rejectedWithdrawal = withdrawalDetails.reduce((total, withdrawal) => {
+            if (withdrawal.dataValues.status === WITHDRAWAL_STATUS.REJECTED) {
+                return total + withdrawal.dataValues.amount;
+            }
+        }, 0)
+
+        const pendingWithdrawal = withdrawalDetails.reduce((total, withdrawal) => {
+            if (withdrawal.dataValues.status === WITHDRAWAL_STATUS.PENDING) {
+                return total + withdrawal.dataValues.amount;
+            }
+        }, 0)
+
+
 
         const withdrawalData = {
             successWithdrawal,

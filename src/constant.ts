@@ -48,3 +48,10 @@ export const SENSITIVE_USER_FIELDS = [
     "token_expires_in",
     "email_verified"
 ]
+
+export const WITHDRAWAL_STATUS = {
+    SUCCESS: 'success',
+    REJECTED: "rejected",
+    PENDING: "pending"
+
+}

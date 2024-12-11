@@ -40,7 +40,7 @@ export const addAccountBalance = async (req: Request, res: Response, next: NextF
                 payment: savePaymentDetails
             }
         })
-        await createNewTransaction(next, paymentAmount, patient_id, "deposit")
+        await createNewTransaction(next, { patient_id: patient_id, type: "deposit", amount: paymentAmount })
 
     } catch (error) {
         next(error)

@@ -6,6 +6,7 @@ import { comparePassword } from "../../../utils/password";
 import { doctor } from "../../../model/doctorModel";
 import { withdrawal } from "../../../model/withdrawal";
 import crypto from 'crypto'
+import { createNewTransaction } from "../transaction/createNewTransaction";
 
 
 // Handler for processing withdrawal requests from doctors
@@ -66,6 +67,8 @@ export const requestWithdrawal = async (req: Request, res: Response, next: NextF
             status: "pending"
         })
 
+        await createNewTransaction(next, { doctor_id: doctor_id, type: "withdrawal", amount: amount })
+
         // Send success response
         res.status(201).json({
             status: "success",
@@ -74,6 +77,7 @@ export const requestWithdrawal = async (req: Request, res: Response, next: NextF
                 details: withdrawalDetails
             }
         })
+
 
     } catch (error) {
         // Pass any errors to error handling middleware

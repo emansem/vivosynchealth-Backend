@@ -124,7 +124,7 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
 
         const paymentId = saveSubscription.dataValues.patient_id as string
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
-        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+        await createNewTransaction(next, { patient_id, doctor_id, type: "subscription", amount: amount })
 
 
         return saveSubscription;
@@ -151,7 +151,7 @@ const upgradeSubscription = async (subscriptionId: number, plan_id: number, amou
         const upgradedData = await subscription.findByPk(subscriptionId);
 
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
-        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+        await createNewTransaction(next, { patient_id, doctor_id, type: "subscription", amount: amount })
 
         return upgradedData;
     } catch (error) {

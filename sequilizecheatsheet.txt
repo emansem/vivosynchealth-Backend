@@ -1,0 +1,129 @@
+Model Definition
+sequelize.define() - Defines a new model.
+Model.init() - Initializes a model with attributes and options.
+CRUD Operations
+Model.create() - Creates a new record.
+Model.findOne() - Finds a single record.
+Model.findAll() - Finds multiple records.
+Model.findByPk() - Finds a record by primary key.
+Model.update() - Updates records.
+Model.destroy() - Deletes records.
+Model.bulkCreate() - Creates multiple records.
+Model.upsert() - Inserts or updates records based on conditions.
+Querying and Filtering
+Model.findAndCountAll() - Finds records and counts them.
+Model.findOrCreate() - Finds a record, or creates one if not found.
+Model.count() - Counts records.
+Model.max() - Finds the maximum value for a column.
+Model.min() - Finds the minimum value for a column.
+Model.sum() - Sums a column’s values.
+Associations (Relationships)
+Model.belongsTo() - Defines a one-to-many relationship.
+Model.hasOne() - Defines a one-to-one relationship.
+Model.hasMany() - Defines a one-to-many relationship.
+Model.belongsToMany() - Defines a many-to-many relationship.
+Transactions
+sequelize.transaction() - Creates a transaction.
+transaction.commit() - Commits a transaction.
+transaction.rollback() - Rolls back a transaction.
+Migrations and Schema
+sequelize.sync() - Syncs all defined models to the database.
+sequelize.drop() - Drops all tables in the database.
+queryInterface.createTable() - Creates a new table.
+queryInterface.dropTable() - Drops an existing table.
+queryInterface.addColumn() - Adds a column to a table.
+queryInterface.removeColumn() - Removes a column from a table.
+Raw Queries
+sequelize.query() - Executes a raw SQL query.
+queryInterface.sequelize.query() - Runs raw queries with query interface.
+Hooks (Lifecycle Events)
+Model.beforeCreate() - Triggered before creating a record.
+Model.afterCreate() - Triggered after creating a record.
+Model.beforeUpdate() - Triggered before updating a record.
+Model.afterUpdate() - Triggered after updating a record.
+Model.beforeDestroy() - Triggered before deleting a record.
+Model.afterDestroy() - Triggered after deleting a record.
+Utility Commands
+sequelize.authenticate() - Tests database connection.
+Model.get() - Retrieves a model’s property value.
+Model.set() - Sets a model’s property value.
+Model.reload() - Reloads the model instance with fresh data from the database.
+Model.increment() - Increments a field’s value.
+Model.decrement() - Decrements a field’s value.
+Model.toJSON() - Converts model instance to a JSON object.
+
+
+
+
+
+Create
+javascript
+Copy code
+// Insert a new record into the `Patient` model
+const newPatient = await Patient.create({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'johndoe@example.com'
+});
+Read
+Find All
+
+javascript
+Copy code
+// Get all records
+const patients = await Patient.findAll();
+Find One
+
+javascript
+Copy code
+// Find a single record with a specific condition
+const patient = await Patient.findOne({ where: { email: 'johndoe@example.com' } });
+Find By Primary Key
+
+javascript
+Copy code
+// Find a record by primary key (ID)
+const patient = await Patient.findByPk(1);
+Find and Count All
+
+javascript
+Copy code
+// Get all records and count them in one query
+const { count, rows } = await Patient.findAndCountAll();
+Update
+javascript
+Copy code
+// Update a patient's last name
+const updatedPatient = await Patient.update(
+    { lastName: 'Smith' },
+    { where: { email: 'johndoe@example.com' } }
+);
+Delete
+javascript
+Copy code
+// Delete a patient by email
+const deletedPatient = await Patient.destroy({
+    where: { email: 'johndoe@example.com' }
+});
+Bulk Create
+javascript
+Copy code
+// Insert multiple records at once
+const patients = await Patient.bulkCreate([
+    { firstName: 'Alice', lastName: 'Johnson', email: 'alice@example.com' },
+    { firstName: 'Bob', lastName: 'Brown', email: 'bob@example.com' }
+]);
+Upsert (Insert or Update)
+javascript
+Copy code
+// Insert or update a record based on unique constraint
+const patient = await Patient.upsert({
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'johndoe@example.com'
+});
+Count
+javascript
+Copy code
+// Count total patients
+const count = await Patient.count();

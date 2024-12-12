@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        color: #333;
+        padding: 20px;
+      }
+      h1 {
+        color: #0056b3;
+      }
+      span {
+        color: #269c65;
+        font-size: 28px;
+        padding: 15px;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Hello {{username}},</h1>
+      <p>
+        Thank you for registering with us! Please verify your email by using the
+        code below:
+      </p>
+      <span> {{code}}</span>
+      <p>If you didn't request this email, you can safely ignore it.</p>
+    </div>
+  </body>
+</html>

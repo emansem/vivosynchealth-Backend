@@ -28,6 +28,8 @@ export const getAllTransactions = async (req: Request, res: Response, next: Next
         const offset = (pageNUmber - 1) * limitResult;
         const totalTransactions = await transaction.count();
 
+        console.log("the next number", offset, pageNUmber, limit)
+
         // Validate page number against total available pages
         const validateResponse = await validateTotalPages(totalTransactions, res, pageNUmber, limitResult, next);
         if (!validateResponse) return;
@@ -59,7 +61,7 @@ export const getAllTransactions = async (req: Request, res: Response, next: Next
 
         // Return successful response with pagination metadata
         res.status(200).json({
-            totalItems: transactionData.length,
+            totalItems: totalTransactions,
             totalPages: Math.ceil(totalTransactions / limitResult),
             currentPage: page,
             data: {

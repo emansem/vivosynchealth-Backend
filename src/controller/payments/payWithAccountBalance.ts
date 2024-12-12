@@ -145,7 +145,9 @@ const createSubscription = async (doctor_id: string, patient_id: string, plan_id
         if (!saveSubscription) throw new AppError("Failed to save subscription data", 400);
 
         const paymentId = saveSubscription.dataValues.patient_id as string
-        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+
+        await createNewTransaction(next, { patient_id, doctor_id, type: "subscription", amount: amount })
+
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
 
         return saveSubscription;
@@ -170,7 +172,8 @@ const upgradeSubscription = async (subscriptionId: number, plan_id: number, amou
 
         const upgradedData = await subscription.findByPk(subscriptionId);
 
-        await createNewTransaction(next, amount, patient_id, "subscription", doctor_id)
+        await createNewTransaction(next, { patient_id, doctor_id, type: "subscription", amount: amount })
+
         await doctor.increment("total_balance", { by: amount, where: { user_id: doctor_id } })
 
         return upgradedData;

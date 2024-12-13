@@ -14,6 +14,7 @@ import { getAllTransactions } from "../controller/userController/transaction/get
 import { createWithdrawalAccount, updateWithdrawalAccount, deleteDoctorWithdrawalAccount, getDoctorWithdrawalDetailsAndAccount } from "../controller/userController/withdrawal/withdrawalAccount";
 import { requestWithdrawal } from "../controller/userController/withdrawal/requestWithdrawal";
 import { getAllSubscriptionData } from "../controller/userController/subscription/getAllSubscriptionData";
+import { updateUserAccountPassword, updateWithdrawalPassword } from "../controller/authentication/updateSettings";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -25,6 +26,8 @@ userRoute
     .get("/transactions/all", protectedRoutes, getAllTransactions)
     .post('/withdrawal/request', protectedRoutes, requestWithdrawal)
     .get("/subscriptions/all/doctor&patients", protectedRoutes, getAllSubscriptionData)
+    .put("/settings/withdrawal/password", protectedRoutes, updateWithdrawalPassword)
+    .put("/settings/account/password", protectedRoutes, updateUserAccountPassword)
 
 // Doctor Routes
 doctorRoute
@@ -60,6 +63,3 @@ patientRoute
     .get('/subscription/current/patient/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getSubscriptionWithPlans)
     .put('/subscription/current/patient/update/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), updateSubscriptionStatus)
 
-// Note: There's a duplicate route in doctorRoute:
-// .get('/plans', ...) appears twice with the same controller (getAllDoctorPlans)
-// You should remove one of these duplicates

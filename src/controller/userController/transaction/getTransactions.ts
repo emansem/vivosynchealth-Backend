@@ -46,7 +46,8 @@ export const getAllTransactions = async (req: Request, res: Response, next: Next
 
             attributes: {
                 exclude: ['patient_id', "doctor_id"]
-            }
+            },
+            order: [['created_at', 'DESC']]
 
         })
 

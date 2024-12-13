@@ -2,8 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import { plan } from "../../../model/subscriptionPlan";
 import { AppError } from "../../../middleware/errors";
 import { SubscriptionPlanDataType } from "../../../types";
-import { Model } from "sequelize";
-import { updateOnboardData } from "./updateOnboardData";
+
 
 
 /**

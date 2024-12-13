@@ -1,6 +1,5 @@
 import express from "express"
 import { getAllDoctors, getDoctorById } from "../controller/userController/patient/getDoctor";
-import { protectedRoutes } from "../middleware/protection";
 import { createAPlan, deleteDoctorPlan, getAllDoctorPlans, getDoctorPlan, updatePlan } from "../controller/userController/doctor/subscriptionPlan";
 import { getAllDoctorSubscriptionPlan, getSubscriptionPlan } from "../controller/userController/patient/getDoctorSubscriptionPlan";
 import { getUser } from "../controller/userController/getUser";
@@ -15,6 +14,8 @@ import { createWithdrawalAccount, updateWithdrawalAccount, deleteDoctorWithdrawa
 import { requestWithdrawal } from "../controller/userController/withdrawal/requestWithdrawal";
 import { getAllSubscriptionData } from "../controller/userController/subscription/getAllSubscriptionData";
 import { updateUserAccountPassword, updateWithdrawalPassword } from "../controller/authentication/updateSettings";
+import { fetchApplicationMetadata } from "../controller/userController/patient/findDoctor/getAllMetaData";
+import { protectedRoutes } from "../middleware/protection";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -28,6 +29,7 @@ userRoute
     .get("/subscriptions/all/doctor&patients", protectedRoutes, getAllSubscriptionData)
     .put("/settings/withdrawal/password", protectedRoutes, updateWithdrawalPassword)
     .put("/settings/account/password", protectedRoutes, updateUserAccountPassword)
+    .get('/meta-data/all', protectedRoutes, fetchApplicationMetadata)
 
 // Doctor Routes
 doctorRoute

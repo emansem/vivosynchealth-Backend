@@ -159,6 +159,8 @@ export const getAllDoctors = async (req: Request, res: Response, next: NextFunct
             }
         });
 
+        console.log("countng", count)
+
         // 4. Format and send response
         // IMPORTANT: Single response point to prevent multiple headers sent
         res.status(200).json({

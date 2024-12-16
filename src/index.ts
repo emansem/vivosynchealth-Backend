@@ -106,3 +106,18 @@ connection.connect((err) => {
 
 
 
+// //Sequelize Basic comparison operators CheatSheet
+// Op.eq    // equals (=)
+// Op.ne    // not equals (!=)
+// Op.gt    // greater than (>)
+// Op.gte   // greater than or equal to (>=)
+// Op.lt    // less than (<)
+// Op.lte   // less than or equal to (<=)
+
+// // More advanced operators
+// Op.between      // between two values
+// Op.notBetween   // not between two values
+// Op.in           // in a list of values
+// Op.notIn        // not in a list of values
+// Op.like         // pattern matching (%)
+// Op.notLike      // opposite of pattern matching

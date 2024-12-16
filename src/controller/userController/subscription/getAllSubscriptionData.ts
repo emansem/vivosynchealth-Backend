@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import { AppError } from "../../../middleware/errors";
 import { subscription } from "../../../model/subscriptionModel";
 import { USER_TYPES } from "../../../constant";
+import { calculatePaginationParams } from "../../../utils/calculatePaginatedOffset";
 
 /**
  * Types and Interfaces
@@ -111,20 +112,7 @@ const buildFilterCriteria = (user_id: string, userType: string, status?: string,
     return whereClause;
 }
 
-/**
- * Pagination Helpers
- */
-const calculatePaginationParams = (page: number, limit: number) => {
-    const pageNumber = parseInt(page.toString());
-    const limitResult = parseInt(limit.toString());
-    const offset = (pageNumber - 1) * limitResult;
 
-    return {
-        pageNumber,
-        limitResult,
-        offset
-    };
-}
 
 /**
  * Response Handlers

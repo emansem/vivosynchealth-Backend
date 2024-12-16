@@ -4,23 +4,67 @@ import { NextFunction, Request, Response } from "express";
 import { subscription } from "../../../model/subscriptionModel";
 import { AppError } from "../../../middleware/errors";
 import { plan } from "../../../model/subscriptionPlan";
-import { where } from "sequelize";
-
+import { Op, where } from "sequelize";
+import { calculatePaginationParams } from "../../../utils/calculatePaginatedOffset";
+interface QueryRequest {
+    page?: number,
+    limit?: number,
+    status?: string,
+    startDate?: string,
+    endDate?: string
+}
 // Controller to handle patient subscription data retrieval
 export const getPatientSubscriptionData = async (req: Request, res: Response, next: NextFunction) => {
     // Get patient ID from authenticated user
     const patient_id = (req as any).user;
-
+    const { page = 1, limit = 10, status = 'all', startDate, endDate } = req.query as QueryRequest
     try {
+
+        const { offset, limitResult } = calculatePaginationParams(page as number, limit);
+
+        const whereClause: any = {
+            patient_id,
+        }
+        if (status !== 'all' && status && status !== 'Select Status') {
+            whereClause.subscription_status = status
+        }
+        // Handle date filtering
+        if (startDate || endDate) {
+            // Determine which date field to filter on
+
+
+            // Create our date condition
+            const dateCondition: any = {};
+
+            if (startDate) {
+                dateCondition[Op.gte] = new Date(startDate);
+            }
+
+            if (endDate) {
+                // If we have an end date, set it to the end of that day
+                const endDateTime = new Date(endDate);
+                endDateTime.setHours(23, 59, 59, 999);
+                dateCondition[Op.lte] = endDateTime;
+            }
+
+            // Add the date condition to our where clause
+            whereClause.created_at = dateCondition;
+        }
+
+
         // Fetch all subscriptions for the patient from database
-        const subscriptionData = await subscription.findAll({
-            where: { patient_id }
+        const { count, rows: subscriptionData } = await subscription.findAndCountAll({
+            where: whereClause,
+            offset,
+            limit: limitResult,
+            order: [['created_at', 'DESC']]
         });
+
 
         // If no subscriptions found, return 404
         if (subscriptionData.length <= 0) {
-            res.status(404).json({
-                status: "Error",
+            res.status(200).json({
+                status: "success",
                 message: "No subscription data found",
                 data: {
                     subscription: []
@@ -28,10 +72,10 @@ export const getPatientSubscriptionData = async (req: Request, res: Response, ne
             });
             return;
         }
-        console.log(subscriptionData)
 
         // Return successful response with subscription data
         res.status(200).json({
+            totalResult: count,
             status: "success",
             message: "Successfully retrieved subscription",
             data: {

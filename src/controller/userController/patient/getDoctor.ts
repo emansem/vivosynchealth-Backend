@@ -1,91 +1,182 @@
-import { Request, Response, NextFunction } from "express"
-import { doctor } from "../../../model/doctorModel"
+import { Request, Response, NextFunction } from "express";
+import { doctor } from "../../../model/doctorModel";
 import { AppError } from "../../../middleware/errors";
 import { SENSITIVE_USER_FIELDS } from "../../../constant";
+import { Op, Sequelize } from "sequelize";
+
 interface FilterTypes {
     city: string;
     country: string;
     specialization: string;
-    state: string
+    state: string;
 }
-//find all doctors from the database and sent
+
+interface QueryResult {
+    success: boolean;
+    data?: {
+        doctors: any[];
+        totalDoctors: number;
+        totalPages: number;
+        currentPage: number;
+    };
+    error?: string;
+}
+
+/**
+ * Builds the search conditions for the doctor query
+ * @param searchValue The search term to look for
+ * @returns Sequelize condition object for searching across multiple columns
+ */
+// const buildSearchConditions = (searchValue: string) => {
+//     const searchLower = searchValue.trim().toLowerCase();
+//     const searchColumns = ['name', 'about', 'speciality'];
+
+//     return {
+//         [Op.or]: searchColumns.map(column =>
+//             Sequelize.where(
+//                 Sequelize.fn('LOWER', Sequelize.col(column)),
+//                 Op.like,
+//                 `%${searchLower}%`
+//             )
+//         )
+//     };
+// };
+
+
+/**
+ * Creates a comprehensive where clause for doctor search and filtering
+ * Combines specialty, country, rating filters with search in a logical way
+ */
+const buildWhereClause = (filters: any) => {
+    const { specialty, country, rating, searchValue } = filters;
+    let whereConditions: any = {};
+
+    // Create an array to hold our AND conditions
+    const andConditions: any[] = [];
+
+    // Handle specialty filter
+    if (specialty && specialty !== 'all') {
+        andConditions.push({ speciality: specialty });
+    }
+
+    // Handle country filter
+    if (country && country !== 'all') {
+        andConditions.push({ country: country });
+    }
+
+    // Handle rating filter
+    if (rating) {
+        const ratingValue = parseFloat(rating);
+        if (!isNaN(ratingValue) && ratingValue >= 0 && ratingValue <= 5) {
+            andConditions.push({
+                rating: {
+                    [Op.gte]: ratingValue  // Using greater than or equal to
+                }
+            });
+        }
+    }
+
+    // Handle search across multiple fields
+    if (searchValue?.trim() && searchValue.length >= 3) {
+        const searchLower = searchValue.trim().toLowerCase();
+        andConditions.push({
+            [Op.or]: [
+                Sequelize.where(
+                    Sequelize.fn('LOWER', Sequelize.col('name')),
+                    Op.like,
+                    `%${searchLower}%`
+                ),
+                Sequelize.where(
+                    Sequelize.fn('LOWER', Sequelize.col('about')),
+                    Op.like,
+                    `%${searchLower}%`
+                ),
+                Sequelize.where(
+                    Sequelize.fn('LOWER', Sequelize.col('speciality')),
+                    Op.like,
+                    `%${searchLower}%`
+                )
+            ]
+        });
+    }
+
+    // If we have any conditions, combine them with AND
+    if (andConditions.length > 0) {
+        whereConditions = {
+            [Op.and]: andConditions
+        };
+    }
+
+    // Debug logging to help understand the query structure
+    console.log('Filter conditions:', {
+        specialty,
+        country,
+        rating,
+        searchValue
+    });
+    console.log('Generated where clause:', JSON.stringify(whereConditions, null, 2));
+
+    return whereConditions;
+};
+
+
+/**
+ * Main controller for getting all doctors with filtering and pagination
+ */
 export const getAllDoctors = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        // 1. Extract and validate query parameters
+        const {
+            specialty,
+            searchValue,
+            country,
+            rating,
+            page = '1',
+            limit = '10'
+        } = req.query as any;
 
-        const { city, specialization, country, state, page = 1, limit = 10 } = req.query as any;
-        const pageNUmber = parseInt(page)
+        const pageNumber = parseInt(page);
         const limitResult = parseInt(limit);
-        if (page <= 0 || isNaN(page)) {
-            throw new AppError("Please provid a valid page number", 400);
-        }
-        const offset = (pageNUmber - 1) * limitResult;
-        // const filter = filterDoctors(state, country, specialization, city);
-        const totalDoctors = await doctor.count();
-        const validateResponse = await validateTotalPages(totalDoctors, res, pageNUmber, limitResult, next);
-        if (!validateResponse) return
-        const doctors = await doctor.findAll(
-            {
-                offset,
-                limit: limitResult,
-                attributes:
-                {
-                    exclude: SENSITIVE_USER_FIELDS
 
-                }
-            }
-        );
-        if (!doctors || doctors.length <= 0) {
-            throw new AppError('No doctors found', 400);
+        // Validate page number
+        if (pageNumber <= 0 || isNaN(pageNumber)) {
+            throw new AppError("Invalid page number", 400);
         }
-        console.log(doctors)
+
+        // 2. Build query components
+        const offset = (pageNumber - 1) * limitResult;
+        const whereClause = buildWhereClause({ specialty, country, rating, searchValue });
+
+        console.log('search conditions', whereClause)
+
+        // 3. Execute query with pagination and filtering
+        const { count, rows: doctors } = await doctor.findAndCountAll({
+            where: whereClause,
+            limit: limitResult,
+            offset,
+            attributes: {
+                exclude: SENSITIVE_USER_FIELDS
+            }
+        });
+
+        console.log("countng", count)
+
+        // 4. Format and send response
+        // IMPORTANT: Single response point to prevent multiple headers sent
         res.status(200).json({
-
-            totalItems: doctors.length,
-            totalPages: Math.ceil(totalDoctors / limitResult),
-            currentPage: page,
+            totalDoctors: count,
+            totalPages: Math.ceil(count / limitResult),
+            currentPage: pageNumber,
             data: {
-                doctors
+                doctors: doctors || []
             }
-        })
-
+        });
 
     } catch (error) {
-        next(error)
-
+        // Pass error to error handling middleware
+        next(error);
     }
-}
-
-//Validate if the page number is greater than the total number of pages in the database.
-
-const validateTotalPages = async (totalDoctors: number, res: Response, page: number, limit: number, next: NextFunction) => {
-    try {
-        const totalPages = Math.ceil(totalDoctors / limit)
-        if (totalPages < page) {
-            res.status(200).json({
-                totalItems: totalDoctors,
-                totalPages,
-                currentPage: page,
-                doctors: []
-            })
-
-        }
-        return true;
-    } catch (error) {
-        next(error)
-        return false;
-    }
-}
-
-const filterDoctors = (state: string, country: string, specialization: string, city: string) => {
-    const filter: any = {};
-    if (country) filter.country = country;
-    if (state) filter.state = state;
-    if (specialization) filter.specialization = specialization
-    if (city) filter.city = city;
-
-    return filter;
-}
-
+};
 //find doctors by id from the database
 export const getDoctorById = async (req: Request, res: Response, next: NextFunction) => {
     const doctorId = req.params.doctorId

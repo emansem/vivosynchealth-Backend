@@ -17,7 +17,26 @@ export const patient = sequelize.define('patient', {
         defaultValue: 0,
         allowNull: false
     },
+    profile_photo: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    }, country: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    state: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
+    city: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
 
+    date_of_birth: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
     email: {
         type: DataTypes.STRING,
         unique: true,
@@ -37,6 +56,7 @@ export const patient = sequelize.define('patient', {
         allowNull: false,
         unique: true
     },
+
     email_verified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
@@ -46,7 +66,7 @@ export const patient = sequelize.define('patient', {
     },
     user_id: {
         type: DataTypes.STRING,
-        defaultValue: "hello"
+
     },
     token_expires_in: {
         type: DataTypes.BIGINT

@@ -16,6 +16,8 @@ import { getAllSubscriptionData } from "../controller/userController/subscriptio
 import { updateUserAccountPassword, updateWithdrawalPassword } from "../controller/authentication/updateSettings";
 import { fetchApplicationMetadata } from "../controller/userController/patient/findDoctor/getAllMetaData";
 import { protectedRoutes } from "../middleware/protection";
+import { getAllPatientProfileData } from "../controller/userController/patient/getPatientData";
+import { updatePatientPersonalDetails } from "../controller/userController/patient/updatePatientDetails";
 export const doctorRoute = express.Router();
 export const patientRoute = express.Router();
 export const userRoute = express.Router();
@@ -64,4 +66,6 @@ patientRoute
     .get('/find-doctor/:doctorId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getDoctorById)
     .get('/subscription/current/patient/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getSubscriptionWithPlans)
     .put('/subscription/current/patient/update/:subscriptionId', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), updateSubscriptionStatus)
+    .get("/profile/all/details", protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), getAllPatientProfileData)
+    .put('/update/personal-information/', protectedRoutes, authoriseUserAccess(USER_TYPES.PATIENT), updatePatientPersonalDetails)
 

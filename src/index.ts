@@ -10,6 +10,7 @@ import { doctorRoute, patientRoute, userRoute } from './routes/userRoute';
 import { paymentRoute } from './routes/paymentRoute';
 import { messageRoutes } from './routes/messages';
 import { Server } from 'socket.io';
+import { adminRoute } from './routes/adminRoute';
 dotenv.config()
 
 const app = express();
@@ -85,6 +86,7 @@ app.use('/api/doctors', doctorRoute);
 app.use("/api/message", messageRoutes);
 app.use('/api/patients', patientRoute);
 app.use('/api/payment', paymentRoute)
+app.use('/api/admin', adminRoute)
 app.use(appErrorHandeler);
 
 app.get('/', (req: Request, res: Response) => {

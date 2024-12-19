@@ -30,20 +30,37 @@ export const getAllPatientsData = async (req: Request, res: Response, next: Next
                 exclude: SENSITIVE_USER_FIELDS
             }
         }
+        const PATIENT_MOBILE_QUERY: any = {
+            order: [['created_at', 'DESC']], attributes: {
+                exclude: SENSITIVE_USER_FIELDS
+            }
+        }
         if (Object.keys(buildWhereClause).length > 0) {
             filterPatientQuery.where = buildWhereClause
         }
 
+        if (Object.keys(buildWhereClause).length > 0) {
+            PATIENT_MOBILE_QUERY.where = buildWhereClause
+        }
+
         const totalPatients = await patient.count()
         const { count, rows: patients } = await patient.findAndCountAll(filterPatientQuery);
+        const mobilePatientListData = await patient.findAll(PATIENT_MOBILE_QUERY);
+        const patientsData = await patient.findAll()
+        const activePatients = patientsData.filter(patient => patient.dataValues.status === 'active')
+        const inactivePatients = patientsData.filter(patient => patient.dataValues.status === 'inactive')
+
 
         res.status(200).json({
             status: "success",
             message: "successfullu retrieved all patients details",
             totalPatients,
             totalResult: count,
+            activePatients: activePatients.length,
+            inactivePatients: inactivePatients.length,
             data: {
-                patients: patients
+                patients: patients,
+                mobilePatientListData,
             }
         })
 

@@ -79,7 +79,7 @@ export const getAllUserMessages = async (req: Request, res: Response, next: Next
 
         // Handle no messages case
         if (messages.length === 0) {
-            res.status(404).json({
+            res.status(200).json({
                 status: "success",
                 message: "No messages found for this chat room",
                 data: {

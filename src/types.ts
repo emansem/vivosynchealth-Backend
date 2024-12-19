@@ -82,3 +82,11 @@ export interface MessageType {
     status: string
     chatRoomId: string,
 }
+export interface Transactions {
+    id: number
+    transaction_id: string,
+    amount: number,
+    type: "subscription" | "withdrawal" | "deposit" | "refund";
+    created_at: string
+    status: "completed" | "pending" | "failed"
+}

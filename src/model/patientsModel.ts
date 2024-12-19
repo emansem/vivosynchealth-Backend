@@ -24,6 +24,10 @@ export const patient = sequelize.define('patient', {
         type: DataTypes.STRING,
         defaultValue: null
     },
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: null
+    },
     state: {
         type: DataTypes.STRING,
         defaultValue: null

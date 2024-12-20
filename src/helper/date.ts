@@ -17,3 +17,37 @@ export const getWeekRange = (anyDate: Date) => {
 
     return { start: startOfWeek, end: endOfWeek };
 };
+
+// Helper function to get the start and end dates for filtering
+export const getMonthlyDateRange = () => {
+    const today = new Date();
+
+    // Get first day of current month
+    const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Get last day of current month
+    const endOfThisMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    // Get first day of last month
+    const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+
+    return {
+        startOfLastMonth,
+        endOfThisMonth
+    };
+};
+
+export const getMonthDate = (date: string) => {
+    // console.log("the month date", new Date(date).getMonth())
+    return new Date(date).getMonth() + 1
+}
+
+export const calculateMontlyDates = () => {
+    // Get current month and handle January case (when lastMonth should be December)
+    const today = new Date()
+    const thisMonth = today.getMonth() + 1
+    const lastMonth = thisMonth === 1 ? 12 : thisMonth - 1
+    console.log("last month", lastMonth)
+    const { startOfLastMonth, endOfThisMonth } = getMonthlyDateRange()
+    return { lastMonth, thisMonth, startOfLastMonth, endOfThisMonth }
+}

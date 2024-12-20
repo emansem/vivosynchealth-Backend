@@ -90,3 +90,35 @@ export interface Transactions {
     created_at: string
     status: "completed" | "pending" | "failed"
 }
+
+export interface UserType {
+    // Personal & Professional Info
+    name: string;
+    email: string;
+    phone_number: string;
+    about: string;
+    medical_license: string;
+    profile_photo: string;
+    years_of_experience: string;
+    languages: string;
+    speciality: string;
+    rating: number,
+    num_reviews: number,
+    balance?: number | string,
+    user_type?: string,
+    user_id: string,
+    // Location/Practice Info
+    hospital_name: string;
+    hospital_address: string;
+    country: string;
+    state: string;
+    city: string;
+    zip_code: string;
+    gender?: "male" | "female" | 'custom' | '' | undefined
+    date_of_birth?: string
+    status?: string,
+    working_days: string;
+    created_at?: Date | number | string,
+    upadted_at?: Date | number | string
+}
+

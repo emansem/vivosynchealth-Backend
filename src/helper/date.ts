@@ -38,6 +38,7 @@ export const getMonthlyDateRange = () => {
 };
 
 export const getMonthDate = (date: string) => {
+    // console.log("the month date", new Date(date).getMonth())
     return new Date(date).getMonth() + 1
 }
 
@@ -46,6 +47,7 @@ export const calculateMontlyDates = () => {
     const today = new Date()
     const thisMonth = today.getMonth() + 1
     const lastMonth = thisMonth === 1 ? 12 : thisMonth - 1
+    console.log("last month", lastMonth)
     const { startOfLastMonth, endOfThisMonth } = getMonthlyDateRange()
     return { lastMonth, thisMonth, startOfLastMonth, endOfThisMonth }
 }

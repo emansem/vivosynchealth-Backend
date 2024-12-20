@@ -2,10 +2,7 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database/sequelize";
 
 export const Support = sequelize.define("support", {
-    id: {
-        type: DataTypes.BIGINT,
 
-    },
     user_id: {
         type: DataTypes.TEXT,
         allowNull: false,

@@ -5,11 +5,12 @@ import { SENSITIVE_USER_FIELDS } from "../../constant";
 import { patient } from "../../model/patientsModel";
 import { subscription } from "../../model/subscriptionModel";
 import { Model, Op } from "sequelize";
-import { SubscriptionData, UserType } from "../../types";
+import { UserType } from "../../types";
 import { calculateMontlyDates, getMonthDate, getMonthlyDateRange } from "../../helper/date";
 import { calculatePerecentageDff } from "../../helper/helps";
 import { transaction } from "../../model/transactionModel";
 import { Support } from "../../model/supportModel";
+import { Admin } from "../../model/AdminModel";
 
 // Define interfaces for better type safety and code documentation
 interface DoctorStats {
@@ -27,7 +28,7 @@ interface PatientStats {
 interface SubscriptionStats {
     totalSubscriptionsDff: number;
     activeSubscriptionPercentage: number;
-    activeSubscriptions: Model<SubscriptionData, SubscriptionData>[];
+    activeSubscriptions: number
     expiredSubscriptions: number;
     cancelledSubscriptions: number;
 }
@@ -49,13 +50,15 @@ export const getAllAdminDashboardData = async (req: Request, res: Response, next
         const patients = await calculatePatientsMonthlyDff(next)
         const subscriptions = await calculateSubscriptionMonthlyDff(next)
         const recentData = await getRecentDetails(next)
+        const adminDetails = await Admin.findByPk(1)
 
         // Structure and send response with all dashboard metrics
         res.status(200).json({
             status: "success",
+            admin_balance: adminDetails?.dataValues.total_balance,
             data: {
                 doctors: {
-                    totaDoctors: doctors?.doctorsPecentage,
+                    totaDoctors: doctors?.totalDoctors,
                     doctorsPercentage: doctors?.doctorsPecentage,
                     doctorsDff: doctors?.totalDoctorsDff
                 },
@@ -92,8 +95,9 @@ const calculateDoctorsMonthlyDff = async (next: NextFunction): Promise<DoctorSta
         // Get date ranges for comparison
         const { lastMonth, thisMonth, startOfLastMonth, endOfThisMonth } = calculateMontlyDates()
 
+        const totalDoctors = await doctor.count()
         // Query doctors within the date range, excluding sensitive fields
-        const { count: totalDoctors, rows: doctors } = await doctor.findAndCountAll({
+        const { count, rows: doctors } = await doctor.findAndCountAll({
             where: {
                 created_at: {
                     [Op.between]: [startOfLastMonth, endOfThisMonth]
@@ -115,6 +119,10 @@ const calculateDoctorsMonthlyDff = async (next: NextFunction): Promise<DoctorSta
         const totalLastMonthDoctors = lastMonthDoctors.length;
         const totalDoctorsDff = totalDoctorThisMonth - totalLastMonthDoctors;
 
+        console.log("Total doctors this month", totalDoctorThisMonth)
+        console.log("Total doctors last month", totalLastMonthDoctors)
+        console.log("total doctors df", totalDoctorsDff)
+
         // Calculate percentage change with edge case handling
         const { percentage } = calculatePerecentageDff(totalDoctorsDff, totalLastMonthDoctors, totalDoctorThisMonth);
 
@@ -132,9 +140,10 @@ const calculateDoctorsMonthlyDff = async (next: NextFunction): Promise<DoctorSta
 const calculatePatientsMonthlyDff = async (next: NextFunction): Promise<PatientStats | undefined> => {
     try {
         const { lastMonth, thisMonth, startOfLastMonth, endOfThisMonth } = calculateMontlyDates()
+        const totalPatients = await patient.count()
 
         // Query patients within date range
-        const { count: totalPatients, rows: patients } = await patient.findAndCountAll({
+        const { count, rows: patients } = await patient.findAndCountAll({
             where: {
                 created_at: {
                     [Op.between]: [startOfLastMonth, endOfThisMonth]
@@ -154,6 +163,11 @@ const calculatePatientsMonthlyDff = async (next: NextFunction): Promise<PatientS
         const totalPatientsThisMonth = thisMonthPatients.length;
         const totalPatientsLastMonth = lastMonthPatients.length;
         const totalPatientsDff = totalPatientsThisMonth - totalPatientsLastMonth;
+        console.log("total patient last month", totalPatientsLastMonth)
+
+        console.log("total patient this month", totalPatientsThisMonth)
+        console.log("total patient df", totalPatientsDff)
+
 
         const { percentage } = calculatePerecentageDff(totalPatientsDff, totalPatientsLastMonth, totalPatientsThisMonth);
 
@@ -184,8 +198,9 @@ const calculateSubscriptionMonthlyDff = async (next: NextFunction): Promise<Subs
             getMonthDate(subscription.dataValues.created_at as string) === thisMonth &&
             subscription.dataValues.subscription_status === 'active'
         );
+
         const lastMonthSubscriptions = subscriptions.filter(subscription =>
-            getMonthDate(subscription.dataValues.created_at as string) === lastMonth &&
+            getMonthDate(subscription.dataValues.created_at) === lastMonth &&
             subscription.dataValues.subscription_status === 'active'
         );
 
@@ -211,10 +226,11 @@ const calculateSubscriptionMonthlyDff = async (next: NextFunction): Promise<Subs
             totalThisMonthSubscriptions
         );
 
+
         return {
             totalSubscriptionsDff,
             activeSubscriptionPercentage: percentage,
-            activeSubscriptions,
+            activeSubscriptions: activeSubscriptions.length,
             expiredSubscriptions: expiredSubscriptions.length,
             cancelledSubscriptions: cancelledSubscriptions.length
         };
@@ -263,3 +279,4 @@ const getRecentDetails = async (next: NextFunction): Promise<RecentData | undefi
         return undefined;
     }
 }
+

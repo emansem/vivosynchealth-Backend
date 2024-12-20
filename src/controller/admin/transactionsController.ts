@@ -135,7 +135,7 @@ const getTransactionMonth = (date: string) => {
  * focusing on deposit and subscription transactions.
  * Returns the percentage change and total revenue.
  */
-const calculateRevenueDff = async () => {
+export const calculateRevenueDff = async () => {
     // Fetch all transactions from database
     const transactions: Model<Transactions, Transactions>[] = await transaction.findAll();
 

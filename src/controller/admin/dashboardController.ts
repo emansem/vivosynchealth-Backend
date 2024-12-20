@@ -182,7 +182,7 @@ const calculatePatientsMonthlyDff = async (next: NextFunction): Promise<PatientS
  * Calculates subscription metrics with additional status-based filtering
  * Tracks active, expired, and cancelled subscriptions
  */
-const calculateSubscriptionMonthlyDff = async (next: NextFunction): Promise<SubscriptionStats | undefined> => {
+export const calculateSubscriptionMonthlyDff = async (next: NextFunction): Promise<SubscriptionStats | undefined> => {
     try {
         const { lastMonth, thisMonth } = calculateMontlyDates()
 

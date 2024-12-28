@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../config/database/sequelize";
+import { sequelize } from "../../config/database/sequelize";
 
-export const Support = sequelize.define("general_settings", {
+export const GeneralSettings = sequelize.define("general_settings", {
 
     website_name: {
         type: DataTypes.TEXT,

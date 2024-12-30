@@ -20,3 +20,4 @@ export const generatePatientId = () => {
     }
     return result;
 }
+

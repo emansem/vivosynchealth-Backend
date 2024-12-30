@@ -122,3 +122,10 @@ export interface UserType {
     upadted_at?: Date | number | string
 }
 
+export interface AdminSupportRequest {
+    content: string,
+    priority: string,
+    subject: string,
+    status: string,
+    user_id: string
+}

@@ -19,7 +19,7 @@ export const TicketSystem = sequelize.define('ticket_system', {
     priority: {
         type: DataTypes.STRING,
     },
-    catagory: {
+    category: {
         type: DataTypes.STRING,
     }
 }, {

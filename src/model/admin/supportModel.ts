@@ -27,7 +27,7 @@ export const Support = sequelize.define("support", {
         type: DataTypes.TEXT,
     },
 
-    catagory: {
+    category: {
         type: DataTypes.STRING,
     }
 }, {

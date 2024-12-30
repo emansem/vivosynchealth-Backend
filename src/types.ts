@@ -122,10 +122,11 @@ export interface UserType {
     upadted_at?: Date | number | string
 }
 
-export interface AdminSupportRequest {
+export interface SupportTicket {
     content: string,
     priority: string,
     subject: string,
-    status: string,
-    user_id: string
+    status: 'open' | 'closed' | 'pending',
+    user_id: string,
+    category: string
 }

@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../config/database/sequelize";
+import { sequelize } from "../../config/database/sequelize";
 
 export const Support = sequelize.define("support", {
 
@@ -23,6 +23,9 @@ export const Support = sequelize.define("support", {
         type: DataTypes.TEXT,
 
     },
+    ticked_id: {
+        type: DataTypes.TEXT,
+    }
 }, {
     tableName: "support",
     timestamps: true,

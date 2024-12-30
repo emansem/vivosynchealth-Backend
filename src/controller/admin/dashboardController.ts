@@ -9,7 +9,7 @@ import { UserType } from "../../types";
 import { calculateMontlyDates, getMonthDate, getMonthlyDateRange } from "../../helper/date";
 import { calculatePerecentageDff } from "../../helper/helps";
 import { transaction } from "../../model/transactionModel";
-import { Support } from "../../model/supportModel";
+import { Support } from "../../model/admin/supportModel";
 import { Admin } from "../../model/AdminModel";
 
 // Define interfaces for better type safety and code documentation

@@ -23,8 +23,12 @@ export const Support = sequelize.define("support", {
         type: DataTypes.TEXT,
 
     },
-    ticked_id: {
+    ticket_id: {
         type: DataTypes.TEXT,
+    },
+
+    catagory: {
+        type: DataTypes.STRING,
     }
 }, {
     tableName: "support",

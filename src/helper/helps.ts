@@ -17,7 +17,7 @@ export const calculatePerecentageDff = (totalDifferences: number, lastMonthDff: 
     return { percentage }
 }
 
-export const generateTickedId = () => {
+export const generateTicketId = () => {
 
     let result = "TK-";
     for (let i = 0; i < 6; i++) {

@@ -1,11 +1,41 @@
 import { NextFunction, Request, Response } from "express";
 import { AppError } from "../../../middleware/errors";
-import { validateSupportRequest } from "../../../helper/helps";
+import { generateTicketId, validateSupportRequest } from "../../../helper/helps";
 import { Support } from "../../../model/admin/supportModel";
 import { AdminSupportRequest } from "../../../types";
 import { TicketSystem } from "../../../model/admin/ticketSystemModel";
+interface CreateTicket {
+    catagory: string,
+    subject: string,
+    content: string
+    prority: string
+}
 
-export const saveAdminSupportResponeDetails = async (req: Request, res: Response, next: NextFunction) => {
+const TICKET_STAUS = {
+    CLOSE: "closed",
+    OPEN: "open",
+
+}
+
+export const createTicket = async (req: Request, res: Response, next: NextFunction) => {
+    const user_id = (req as any).user;
+    const { catagory, subject, content, prority } = req.body as CreateTicket
+    try {
+        const ticketDetails = await TicketSystem.findOne({ where: { user_id } });
+        const isTicketCatagorySame = ticketDetails?.dataValues.catagory === catagory && ticketDetails.dataValues.ticket_status === TICKET_STAUS.OPEN
+        if (isTicketCatagorySame) throw new AppError(`You already have a open ticket Id :${ticketDetails.dataValues.ticket_id} open`, 400)
+        const ticketId = generateTicketId()
+        const createTicketDetails = await TicketSystem.create({ catagory, content, ticket_status: TICKET_STAUS.OPEN, prority, user_id, ticked_id: ticketId, })
+        if (!createTicketDetails) throw new AppError("An error occured trying to create your ticket", 400);
+
+        const saveTicketMessage = await Support.create({ catagory, content, status: TICKET_STAUS.OPEN, prority, user_id, ticked_id: ticketId, subject })
+
+    } catch (error) {
+
+    }
+}
+
+export const savePatientSupportResponeDetails = async (req: Request, res: Response, next: NextFunction) => {
 
     const { content, priority, subject, status, user_id } = req.body as AdminSupportRequest
     const ticket_id = req.query as unknown as string

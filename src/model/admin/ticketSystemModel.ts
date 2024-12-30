@@ -1,26 +1,29 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../../config/database/sequelize";
 
-export const TickedSystem = sequelize.define('ticked_system', {
+export const TicketSystem = sequelize.define('ticket_system', {
     user_id: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    ticked_id: {
+    ticket_id: {
         type: DataTypes.STRING,
         allowNull: false
     },
     content: {
         type: DataTypes.STRING,
     },
-    ticked_status: {
+    ticket_status: {
         type: DataTypes.STRING,
     },
     priority: {
         type: DataTypes.STRING,
+    },
+    catagory: {
+        type: DataTypes.STRING,
     }
 }, {
-    tableName: "ticked_system",
+    tableName: "ticket_system",
     timestamps: true,
     createdAt: "created_at",
     updatedAt: "updated_at",

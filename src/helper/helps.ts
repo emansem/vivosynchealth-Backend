@@ -1,5 +1,5 @@
 import { NextFunction } from "express";
-import { AdminSupportRequest } from "../types";
+import { SupportTicket } from "../types";
 import { AppError } from "../middleware/errors";
 
 export const calculatePerecentageDff = (totalDifferences: number, lastMonthDff: number, thisMonthDff: number) => {
@@ -28,7 +28,7 @@ export const generateTicketId = () => {
     return result;
 }
 
-export const validateSupportRequest = (next: NextFunction, body: AdminSupportRequest): boolean => {
+export const validateSupportRequest = (next: NextFunction, body: SupportTicket): boolean => {
     const { content, priority, subject, status, user_id } = body
 
     if (!content || content.length === 0) {
